@@ -1,5 +1,5 @@
-package com.someoddguy.snapshare.searchbluetoothusers // Make sure this matches your folder!
-import android.annotation.SuppressLint
+package com.someoddguy.snapshare.ui.searchbluetoothusers // Make sure this matches your folder!
+
 import android.bluetooth.le.ScanResult
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

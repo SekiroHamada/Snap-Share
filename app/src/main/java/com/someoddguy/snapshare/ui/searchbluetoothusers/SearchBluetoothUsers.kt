@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
-import com.someoddguy.snapshare.searchbluetoothusers.SearchBluetoothViewModel
 import com.someoddguy.snapshare.ui.searchdevicecard.SearchDeviceCard
 
 @SuppressLint("MissingPermission")

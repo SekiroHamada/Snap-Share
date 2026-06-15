@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.someoddguy.snapshare.searchbluetoothusers.SearchBluetoothViewModel
+import com.someoddguy.snapshare.ui.searchbluetoothusers.SearchBluetoothViewModel
 import com.someoddguy.snapshare.ui.homescreen.HomeScreen
 import com.someoddguy.snapshare.ui.searchbluetoothusers.SearchBluetoothUsers
 import com.someoddguy.snapshare.ui.splashscreen.SplashScreen

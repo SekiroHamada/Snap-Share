@@ -21,9 +21,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import com.someoddguy.snapshare.ble.BleAdvertiser
 import com.someoddguy.snapshare.navigation.NavigationSystem
-import com.someoddguy.snapshare.searchbluetoothusers.SearchBluetoothViewModel
+import com.someoddguy.snapshare.ui.searchbluetoothusers.SearchBluetoothViewModel
 import com.someoddguy.snapshare.utils.hasPermission
 import com.someoddguy.snapshare.utils.hasRequiredBluetoothPermissions
 import com.someoddguy.snapshare.utils.showPermanentDenyAlert
@@ -49,23 +48,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /*TODO Change this code */
-    private val viewModel: SearchBluetoothViewModel by viewModels()
 
-    private val scanCallback = object : ScanCallback() {
-        override fun onScanResult(callbackType: Int, result: ScanResult) {
-            // Push the result to the ViewModel.
-            // The ViewModel handles the duplicate checking logic now.
-            viewModel.addOrUpdateDevice(result)
-
-            // Optional: Keep your logging if needed
-            Log.i("ScanCallback", "Found BLE device! address: ${result.device.address}")
-        }
-
-        override fun onScanFailed(errorCode: Int) {
-            Log.e("ScanCallback", "onScanFailed: code $errorCode")
-        }
-    }
+    // For scanning devices, will be passed down for further use.
     private fun startBleScan() {
         if (!hasRequiredBluetoothPermissions()) {
             requestRelevantRuntimePermissions()
@@ -85,15 +69,30 @@ class MainActivity : ComponentActivity() {
         }
 
     }
+    /*TODO Change this code */
+    private val viewModel: SearchBluetoothViewModel by viewModels()
+
+    private val scanCallback = object : ScanCallback() {
+        override fun onScanResult(callbackType: Int, result: ScanResult) {
+            // Push the result to the ViewModel.
+            // The ViewModel handles the duplicate checking logic now.
+            viewModel.addOrUpdateDevice(result)
+
+            // Optional: Keep your logging if needed
+            Log.i("ScanCallback", "Found BLE device! address: ${result.device.address}")
+        }
+
+        override fun onScanFailed(errorCode: Int) {
+            Log.e("ScanCallback", "onScanFailed: code $errorCode")
+        }
+    }
     private fun Activity.requestRelevantRuntimePermissions() {
         if (hasRequiredBluetoothPermissions()) { return }
-        when {
-            Build.VERSION.SDK_INT < Build.VERSION_CODES.S -> {
-                requestLocationPermission()
-            }
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                requestBluetoothPermissions()
-            }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            requestLocationPermission()
+        } else {
+            //if SDK version >= Build version
+            requestBluetoothPermissions()
         }
     }
 
@@ -236,22 +235,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    /*TODO Experimental Code */
-    // Initialize your new class
-    private val appAdvertiser by lazy { BleAdvertiser(bluetoothAdapter) }
-    private fun startBleScanAndAdvertise() {
-        if (!hasRequiredBluetoothPermissions()) {
-            requestRelevantRuntimePermissions()
-        } else {
-            // 1. Start looking for other SnapShare phones
-            viewModel.clearResults()
-            //put a ? here
-            bleScanner?.startScan(null, scanSettings, scanCallback)
 
-            // 2. Start shouting "I am here" to other SnapShare phones
-            appAdvertiser.startAdvertising()
-        }
-    }
 
 
 }
