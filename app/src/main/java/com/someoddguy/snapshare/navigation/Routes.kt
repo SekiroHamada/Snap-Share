@@ -12,4 +12,9 @@ sealed class Routes {
     @Serializable
     data object SearchBluetoothUsers:Routes()
 
+    @Serializable
+    data object SendFileScreen:Routes()
+
+    @Serializable
+    data object ReceiveFileScreen:Routes()
 }

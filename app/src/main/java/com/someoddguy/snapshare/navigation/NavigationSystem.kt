@@ -4,17 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.someoddguy.snapshare.ui.searchbluetoothusers.SearchBluetoothViewModel
 import com.someoddguy.snapshare.ui.homescreen.HomeScreen
+import com.someoddguy.snapshare.ui.receivefilescreen.ReceiveFileScreen
 import com.someoddguy.snapshare.ui.searchbluetoothusers.SearchBluetoothUsers
+import com.someoddguy.snapshare.ui.sendfilescreen.SendFileScreen
 import com.someoddguy.snapshare.ui.splashscreen.SplashScreen
 
 @Composable
-fun NavigationSystem(
-    viewModel: SearchBluetoothViewModel,
-    onStartScanClick: () -> Unit,
-    onStopScanClick: () -> Unit
-){
+fun NavigationSystem(){
     val navController= rememberNavController()
 
     NavHost(startDestination = Routes.SplashScreen,navController=navController){
@@ -27,12 +24,13 @@ fun NavigationSystem(
             HomeScreen(navController)
         }
         composable<Routes.SearchBluetoothUsers>{
-            SearchBluetoothUsers(
-                navController,
-                viewModel = viewModel,
-                onStartScanClick=onStartScanClick,
-                onStopScanClick=onStopScanClick
-            )
+            SearchBluetoothUsers(navController)
+        }
+        composable<Routes.SendFileScreen>{
+            SendFileScreen(navHostController = navController)
+        }
+        composable<Routes.ReceiveFileScreen>{
+            ReceiveFileScreen(navHostController = navController)
         }
     }
 }

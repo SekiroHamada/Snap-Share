@@ -1,36 +1,82 @@
-package com.someoddguy.snapshare.ui.searchbluetoothusers // Make sure this matches your folder!
+package com.someoddguy.snapshare.ui.searchbluetoothusers
 
+import android.annotation.SuppressLint
+import android.app.Application
+import android.bluetooth.BluetoothManager
+import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
-import androidx.lifecycle.ViewModel
+import android.bluetooth.le.ScanSettings
+import android.content.Context
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class SearchBluetoothViewModel : ViewModel() {
+// Changed to AndroidViewModel so we have safe access to the application context
+// to get the Bluetooth System Service.
+class SearchBluetoothViewModel(application: Application) : AndroidViewModel(application) {
 
-    // Holds the reactive state of our scanned devices
     private val _scanResults = MutableStateFlow<List<ScanResult>>(emptyList())
     val scanResults: StateFlow<List<ScanResult>> = _scanResults.asStateFlow()
 
-    fun addOrUpdateDevice(result: ScanResult) {
+    // Lazily instantiate the Bluetooth Adapter using the Application Context
+    private val bluetoothAdapter by lazy {
+        val bluetoothManager = application.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        bluetoothManager.adapter
+    }
+
+    private val bleScanner by lazy {
+        bluetoothAdapter.bluetoothLeScanner
+    }
+
+    private val scanSettings = ScanSettings.Builder()
+        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+        .build()
+
+    // Moved the callback directly into the ViewModel.
+    // It now calls addOrUpdateDevice directly instead of relying on the Activity.
+    private val scanCallback = object : ScanCallback() {
+        override fun onScanResult(callbackType: Int, result: ScanResult) {
+            addOrUpdateDevice(result)
+            Log.i("ScanCallback", "Found BLE device! address: ${result.device.address}")
+        }
+
+        override fun onScanFailed(errorCode: Int) {
+            Log.e("ScanCallback", "onScanFailed: code $errorCode")
+        }
+    }
+
+    private fun addOrUpdateDevice(result: ScanResult) {
         _scanResults.update { currentList ->
             val mutableList = currentList.toMutableList()
             val indexQuery = mutableList.indexOfFirst { it.device.address == result.device.address }
 
             if (indexQuery != -1) {
-                // Device exists, update its signal strength (RSSI) or data
                 mutableList[indexQuery] = result
             } else {
-                // New device found, add to the list
                 mutableList.add(result)
             }
-            // Returning the new list triggers the StateFlow to emit, updating Compose
             mutableList
         }
     }
 
     fun clearResults() {
         _scanResults.value = emptyList()
+    }
+
+    // Since the UI now handles the permission requests before this is called,
+    // we can suppress the MissingPermission warning here.
+    @SuppressLint("MissingPermission")
+    fun startBleScan() {
+        // Clear previous results when starting a new scan
+        clearResults()
+        bleScanner?.startScan(null, scanSettings, scanCallback)
+    }
+
+    @SuppressLint("MissingPermission")
+    fun stopBleScan() {
+        bleScanner?.stopScan(scanCallback)
     }
 }
