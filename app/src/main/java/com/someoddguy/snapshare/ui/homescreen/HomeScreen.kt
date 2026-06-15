@@ -38,8 +38,8 @@ fun HomeScreen(
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = colorResource(R.color.black),          // Sets the background to black
-        contentColor = colorResource(R.color.white)    // Sets the default text color to white
+        color = colorResource(R.color.black),
+        contentColor = colorResource(R.color.white)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

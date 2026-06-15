@@ -4,15 +4,18 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
+import android.os.ParcelUuid
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import java.util.UUID
 
 // Changed to AndroidViewModel so we have safe access to the application context
 // to get the Bluetooth System Service.
@@ -35,8 +38,16 @@ class SearchBluetoothViewModel(application: Application) : AndroidViewModel(appl
         .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
         .build()
 
-    // Moved the callback directly into the ViewModel.
-    // It now calls addOrUpdateDevice directly instead of relying on the Activity.
+    /*TODO change the UUID for target, also change it in the ReceiveFileViewModel as well*/
+    /*TODO CHANGE THE UUID AND SAVE IT SOMEWHERE SAFE*/
+    val targetServiceUuid = ParcelUuid(UUID.fromString("b8e1b517-97c9-464a-b8ff-60647e8cce2a"))
+    val scanFilter = ScanFilter.Builder()
+        .setServiceUuid(targetServiceUuid)
+        .build()
+    val filters = listOf(scanFilter)
+
+
+
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             addOrUpdateDevice(result)
@@ -72,7 +83,7 @@ class SearchBluetoothViewModel(application: Application) : AndroidViewModel(appl
     fun startBleScan() {
         // Clear previous results when starting a new scan
         clearResults()
-        bleScanner?.startScan(null, scanSettings, scanCallback)
+        bleScanner?.startScan(filters, scanSettings, scanCallback)
     }
 
     @SuppressLint("MissingPermission")
