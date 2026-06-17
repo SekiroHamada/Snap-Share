@@ -8,14 +8,9 @@ import android.bluetooth.le.ScanResult
 import android.content.Context
 import androidx.annotation.RequiresPermission
 import com.someoddguy.snapshare.utils.showToast
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.time.Duration.Companion.milliseconds
 
-object BleGattConnection {
+object BleGattConnector {
     val activeConnections: MutableList<BluetoothGatt> = CopyOnWriteArrayList()
     private var appContext: Context? = null
     fun addConnection(gatt: BluetoothGatt) {
@@ -46,9 +41,6 @@ object BleGattConnection {
 
 
     fun startConnection(context: Context,result: ScanResult){
-        if (appContext == null) {
-            appContext = context.applicationContext
-        }
         @SuppressLint("MissingPermission")
         val bluetoothGatt = result.device.connectGatt(
             context,
@@ -57,7 +49,6 @@ object BleGattConnection {
             BluetoothDevice.TRANSPORT_LE
         )
     }
-
     private val gattCallback = object : BluetoothGattCallback() {
         @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
@@ -67,25 +58,22 @@ object BleGattConnection {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     showToast("Connected to $deviceAddress",true)
                     addConnection(gatt)
-                    /*TODO: Delete this code below after use*/
-                    CoroutineScope(Dispatchers.Main).launch {
-                        delay(1000L.milliseconds)
-                        removeConnection(gatt)
-                    }
-
-                    /*TODO*/
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     showToast("Successfully disconnected from $deviceAddress",true)
                     removeConnection(gatt)
+                    gatt.disconnect()
                     gatt.close()
                 }
             } else {
                 showToast("Error $status encountered for $deviceAddress! Disconnecting...",true)
                 removeConnection(gatt)
+                gatt.disconnect()
                 gatt.close()
             }
         }
     }
+
+
 
 }

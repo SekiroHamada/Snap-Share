@@ -1,6 +1,9 @@
 package com.someoddguy.snapshare.ui.searchbluetoothusers
 
 
+/*TODO change the UUID for target, also change it in the ReceiveFileViewModel as well*/
+/*TODO CHANGE THE UUID AND SAVE IT SOMEWHERE SAFE*/
+
 import android.annotation.SuppressLint
 import android.app.Application
 import android.bluetooth.BluetoothGatt
@@ -32,8 +35,6 @@ class SearchBluetoothViewModel(application: Application) : AndroidViewModel(appl
     val scanResults: StateFlow<List<ScanResult>> = _scanResults.asStateFlow()
 
 
-    //for active Gatt Connections
-    private var activeGatt: BluetoothGatt? = null
 
     // Lazily instantiate the Bluetooth Adapter using the Application Context
     private val bluetoothAdapter by lazy {
@@ -111,7 +112,7 @@ class SearchBluetoothViewModel(application: Application) : AndroidViewModel(appl
             _isScanning.value = false
         }
         val context=getApplication<Application>()
-        BleGattConnection.startConnection(context,result)
+        BleGattConnector.startConnection(context,result)
 
 
     }

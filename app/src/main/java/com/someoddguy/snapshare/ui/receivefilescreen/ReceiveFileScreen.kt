@@ -11,15 +11,18 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
@@ -29,11 +32,11 @@ fun ReceiveFileScreen(
     navHostController: NavHostController,
     viewModel: ReceiveFileViewModel = viewModel()
 ) {
-    val context = LocalContext.current
 
+
+    val context = LocalContext.current
     // Observe the state from the ViewModel
     val isAdvertising by viewModel.isAdvertising.collectAsState()
-
     // 1. Launcher to prompt the user to enable Bluetooth
     val enableBluetoothLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -46,7 +49,7 @@ fun ReceiveFileScreen(
         }
     }
 
-    // 2. Launcher for runtime permissions
+    // Code for permissions
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -73,6 +76,42 @@ fun ReceiveFileScreen(
             Toast.makeText(context, "Bluetooth permissions are required", Toast.LENGTH_SHORT).show()
         }
     }
+    //permission code end
+
+    //Prompt Window code for gattServer receiving a connection
+    if (viewModel.showConnectionDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                // empty to force user to send connection
+            },
+            title = {
+                Text(text = "Incoming Connection")
+            },
+            text = {
+                Text(text = "Device ${viewModel.connectingDeviceAddress} wants to connect. Do you want to keep this connection?")
+            },
+            confirmButton = {
+                Button(
+                    onClick = { viewModel.onKeepClicked() }
+                ) {
+                    Text("Keep")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { viewModel.onRemoveClicked() }
+                ) {
+                    Text("Remove")
+                }
+            },
+            // This prevents the user from dismissing the dialog by tapping outside of it
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
+        )
+    }
+    //End of Prompt Window
 
     Surface(
         modifier = Modifier.fillMaxSize(),
