@@ -10,7 +10,11 @@ import android.content.Context
 import android.os.ParcelUuid
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.someoddguy.snapshare.utils.showToast
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,13 +28,68 @@ class ReceiveFileViewModel : ViewModel() {
 
     private var advertiseCallback: AdvertiseCallback? = null
 
+    /*TODO check code*/
+    //for Prompt Window
+    var showConnectionDialog by mutableStateOf(false)
+        private set
+
+    // State to hold the incoming device address for the UI
+    var connectingDeviceAddress by mutableStateOf("")
+        private set
+
+    // Temporary variables to hold the callbacks from the BLE Handler
+    private var pendingKeepAction: (() -> Unit)? = null
+    private var pendingRemoveAction: (() -> Unit)? = null
+
+    init {
+        // 1. Listen for connection requests from the singleton
+        BleGattConnectionHandler.onConnectionPromptRequested = { address, onKeep, onRemove ->
+            // Update state to trigger the Compose dialog
+            connectingDeviceAddress = address
+            pendingKeepAction = onKeep
+            pendingRemoveAction = onRemove
+            showConnectionDialog = true
+        }
+    }
+
+    // 2. Called by Compose when the user clicks "Keep"
+    fun onKeepClicked() {
+        pendingKeepAction?.invoke()
+        clearDialogState()
+    }
+
+    // 3. Called by Compose when the user clicks "Remove"
+    fun onRemoveClicked() {
+        pendingRemoveAction?.invoke()
+        clearDialogState()
+    }
+
+    private fun clearDialogState() {
+        showConnectionDialog = false
+        pendingKeepAction = null
+        pendingRemoveAction = null
+        connectingDeviceAddress = ""
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Prevent memory leaks if the ViewModel is destroyed
+        BleGattConnectionHandler.onConnectionPromptRequested = null
+    }
+
+    /*TODO end*/
+
+
+
+
+
     @SuppressLint("MissingPermission")
     fun startAdvertising(context: Context) {
         val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val advertiser = bluetoothManager.adapter?.bluetoothLeAdvertiser
 
         if (advertiser == null) {
-            Toast.makeText(context,"This device does not support BLE advertising.",Toast.LENGTH_SHORT).show()
+            showToast("This device does not support BLE advertising.",true)
             return
         }
 
@@ -42,12 +101,12 @@ class ReceiveFileViewModel : ViewModel() {
 
         val appServiceUuid = ParcelUuid(UUID.fromString("b8e1b517-97c9-464a-b8ff-60647e8cce2a"))
 
-        // this data send UUID without the name, which ensures that packet doesn't exceed the data limit of 31byte
+        // only sends UUID not name
         val advertiseData = AdvertiseData.Builder()
             .setIncludeDeviceName(false)
             .addServiceUuid(appServiceUuid)
             .build()
-
+        //this sends the name
         val scanResponseData= AdvertiseData.Builder()
             .setIncludeDeviceName(true)
             .build()
@@ -55,19 +114,20 @@ class ReceiveFileViewModel : ViewModel() {
 
         advertiseCallback = object : AdvertiseCallback() {
             override fun onStartSuccess(settingsInEffect: AdvertiseSettings?) {
-                Toast.makeText(context,"Advertising Started!",Toast.LENGTH_SHORT).show()
-                //Log.d("BLE", "Advertising started successfully.")
+                showToast("Advertising Started!",true)
+
                 _isAdvertising.value = true
             }
 
             override fun onStartFailure(errorCode: Int) {
-                Toast.makeText(context,"Advertising failed with error code: $errorCode",Toast.LENGTH_SHORT).show()
-                //Log.e("BLE", "Advertising failed with error code: $errorCode")
+                showToast("Advertising failed with error code: $errorCode",true)
+
                 _isAdvertising.value = false
             }
         }
-
+        BleGattConnectionHandler.startServer(context)
         advertiser.startAdvertising(settings, advertiseData, scanResponseData, advertiseCallback)
+
     }
 
     @SuppressLint("MissingPermission")
@@ -78,7 +138,7 @@ class ReceiveFileViewModel : ViewModel() {
         advertiseCallback?.let {
             advertiser?.stopAdvertising(it)
             _isAdvertising.value = false
-            Toast.makeText(context,"Advertising stopped!",Toast.LENGTH_SHORT).show()
+            showToast("Advertising stopped!",true)
             //Log.d("BLE", "Advertising stopped.")
         }
     }
