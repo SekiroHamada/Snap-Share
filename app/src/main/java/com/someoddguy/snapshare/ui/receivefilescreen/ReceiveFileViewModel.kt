@@ -30,7 +30,7 @@ class ReceiveFileViewModel : ViewModel() {
         val advertiser = bluetoothManager.adapter?.bluetoothLeAdvertiser
 
         if (advertiser == null) {
-            Log.e("BLE", "This device does not support BLE advertising.")
+            Toast.makeText(context,"This device does not support BLE advertising.",Toast.LENGTH_SHORT).show()
             return
         }
 

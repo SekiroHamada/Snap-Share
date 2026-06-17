@@ -31,7 +31,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SnapShare">
+        android:theme="@style/Theme.SnapShare"
+        android:name=".globalcontext.GlobalContext">
+
 
         <activity
             android:name=".MainActivity"

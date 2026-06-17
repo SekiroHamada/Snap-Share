@@ -1,7 +1,11 @@
 package com.someoddguy.snapshare.ui.receivefilescreen
 
-
 import android.Manifest
+import android.app.Activity
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -30,6 +34,19 @@ fun ReceiveFileScreen(
     // Observe the state from the ViewModel
     val isAdvertising by viewModel.isAdvertising.collectAsState()
 
+    // 1. Launcher to prompt the user to enable Bluetooth
+    val enableBluetoothLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // User turned on Bluetooth, safe to start advertising
+            viewModel.startAdvertising(context)
+        } else {
+            Toast.makeText(context, "Bluetooth must be enabled to receive files", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // 2. Launcher for runtime permissions
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -40,13 +57,23 @@ fun ReceiveFileScreen(
             permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
         }
 
-        // If permissions are granted, tell the ViewModel to start
+        // If permissions are granted, check if Bluetooth is actually turned on
         if (canAdvertise) {
-            viewModel.startAdvertising(context)
-        }else{
-            Toast.makeText(context,"Bluetooth permissions are required",Toast.LENGTH_SHORT).show()
+            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            val adapter = bluetoothManager.adapter
+
+            if (adapter?.isEnabled == true) {
+                viewModel.startAdvertising(context)
+            } else {
+                // If permissions are good but BT is off, launch the enable intent
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                enableBluetoothLauncher.launch(enableBtIntent)
+            }
+        } else {
+            Toast.makeText(context, "Bluetooth permissions are required", Toast.LENGTH_SHORT).show()
         }
     }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = colorResource(com.someoddguy.snapshare.R.color.black),
@@ -70,7 +97,7 @@ fun ReceiveFileScreen(
                                 Manifest.permission.ACCESS_FINE_LOCATION
                             )
                         }
-                        //start advertising
+                        // Start permission request flow
                         permissionLauncher.launch(permissionsToRequest)
                     } else {
                         // Stop advertising
@@ -83,5 +110,4 @@ fun ReceiveFileScreen(
             }
         }
     }
-
 }

@@ -51,6 +51,7 @@ fun SearchBluetoothUsers(
     val context = LocalContext.current
     val activity = context.findActivity() // Extract activity for rationale checks
     val scanResults by viewModel.scanResults.collectAsState()
+    val isScanning by viewModel.isScanning.collectAsState()
 
     // 1. Determine which permissions to ask for based on Android version
     val permissionsToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -99,7 +100,7 @@ fun SearchBluetoothUsers(
                 activity?.showPermanentDenyAlert()
             } else {
                 // Standard denial (user just hit "Deny" once)
-                Toast.makeText(context, "Permissions denied. Cannot scan.", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Permissions denied. Cannot scan.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -137,8 +138,8 @@ fun SearchBluetoothUsers(
                     SearchDeviceCard(
                         deviceName = result.device.name ?: "Unknown Device",
                         deviceAddress = result.device.address,
-                        onClick = {
-                            println("Connecting to yes...")
+                        onClick={
+                            viewModel.startConnection(result)
                         }
                     )
                     Spacer(modifier = Modifier.height(5.dp))
@@ -155,21 +156,18 @@ fun SearchBluetoothUsers(
             ) {
                 Button(
                     onClick = {
-                        permissionLauncher.launch(permissionsToRequest)
+                        if(!isScanning){
+                            permissionLauncher.launch(permissionsToRequest)
+                        }else{
+                            viewModel.stopBleScan()
+                        }
+
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(text = "Scan")
+                    Text(if(!isScanning)"Scan" else "Stop Scan")
                 }
 
-                Button(
-                    onClick = {
-                        viewModel.stopBleScan()
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(text = "Stop")
-                }
             }
         }
     }

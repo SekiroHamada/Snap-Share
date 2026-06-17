@@ -1,7 +1,9 @@
 package com.someoddguy.snapshare.ui.searchbluetoothusers
 
+
 import android.annotation.SuppressLint
 import android.app.Application
+import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
@@ -21,8 +23,17 @@ import java.util.UUID
 // to get the Bluetooth System Service.
 class SearchBluetoothViewModel(application: Application) : AndroidViewModel(application) {
 
+    //for checking if app is scanning or not
+    private val _isScanning = MutableStateFlow(false)
+    val isScanning: StateFlow<Boolean> = _isScanning.asStateFlow()
+
+    //stores the nearby devices
     private val _scanResults = MutableStateFlow<List<ScanResult>>(emptyList())
     val scanResults: StateFlow<List<ScanResult>> = _scanResults.asStateFlow()
+
+
+    //for active Gatt Connections
+    private var activeGatt: BluetoothGatt? = null
 
     // Lazily instantiate the Bluetooth Adapter using the Application Context
     private val bluetoothAdapter by lazy {
@@ -56,6 +67,7 @@ class SearchBluetoothViewModel(application: Application) : AndroidViewModel(appl
 
         override fun onScanFailed(errorCode: Int) {
             Log.e("ScanCallback", "onScanFailed: code $errorCode")
+            _isScanning.value=false
         }
     }
 
@@ -84,10 +96,23 @@ class SearchBluetoothViewModel(application: Application) : AndroidViewModel(appl
         // Clear previous results when starting a new scan
         clearResults()
         bleScanner?.startScan(filters, scanSettings, scanCallback)
+        _isScanning.value=true
     }
 
     @SuppressLint("MissingPermission")
     fun stopBleScan() {
         bleScanner?.stopScan(scanCallback)
+        _isScanning.value=false
+    }
+
+    fun startConnection(result: ScanResult){
+        if(_isScanning.value){
+            stopBleScan()
+            _isScanning.value = false
+        }
+        val context=getApplication<Application>()
+        BleGattConnection.startConnection(context,result)
+
+
     }
 }
