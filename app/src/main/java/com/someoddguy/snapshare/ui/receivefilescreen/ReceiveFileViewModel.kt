@@ -8,17 +8,15 @@ import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.content.Context
 import android.os.ParcelUuid
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.someoddguy.snapshare.ble.BleConfig
 import com.someoddguy.snapshare.utils.showToast
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.UUID
 
 class ReceiveFileViewModel : ViewModel() {
 
@@ -99,7 +97,7 @@ class ReceiveFileViewModel : ViewModel() {
             .setConnectable(true)
             .build()
 
-        val appServiceUuid = ParcelUuid(UUID.fromString("b8e1b517-97c9-464a-b8ff-60647e8cce2a"))
+        val appServiceUuid = ParcelUuid(BleConfig.APP_SERVICE_UUID)
 
         // only sends UUID not name
         val advertiseData = AdvertiseData.Builder()

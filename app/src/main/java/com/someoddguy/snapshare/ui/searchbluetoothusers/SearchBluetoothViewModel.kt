@@ -1,8 +1,7 @@
 package com.someoddguy.snapshare.ui.searchbluetoothusers
 
 
-/*TODO change the UUID for target, also change it in the ReceiveFileViewModel as well*/
-/*TODO CHANGE THE UUID AND SAVE IT SOMEWHERE SAFE*/
+
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -16,11 +15,11 @@ import android.content.Context
 import android.os.ParcelUuid
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import com.someoddguy.snapshare.ble.BleConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.util.UUID
 
 // Changed to AndroidViewModel so we have safe access to the application context
 // to get the Bluetooth System Service.
@@ -50,9 +49,7 @@ class SearchBluetoothViewModel(application: Application) : AndroidViewModel(appl
         .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
         .build()
 
-    /*TODO change the UUID for target, also change it in the ReceiveFileViewModel as well*/
-    /*TODO CHANGE THE UUID AND SAVE IT SOMEWHERE SAFE*/
-    val targetServiceUuid = ParcelUuid(UUID.fromString("b8e1b517-97c9-464a-b8ff-60647e8cce2a"))
+    val targetServiceUuid = ParcelUuid(BleConfig.APP_SERVICE_UUID)
     val scanFilter = ScanFilter.Builder()
         .setServiceUuid(targetServiceUuid)
         .build()
