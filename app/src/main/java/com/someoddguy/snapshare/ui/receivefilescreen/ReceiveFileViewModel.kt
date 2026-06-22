@@ -136,8 +136,9 @@ class ReceiveFileViewModel : ViewModel() {
         advertiseCallback?.let {
             advertiser?.stopAdvertising(it)
             _isAdvertising.value = false
+            BleGattConnectionHandler.stopServer()
             showToast("Advertising stopped!",true)
-            //Log.d("BLE", "Advertising stopped.")
+
         }
     }
 }

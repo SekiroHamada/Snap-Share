@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService
@@ -23,15 +24,23 @@ import java.util.concurrent.CopyOnWriteArrayList
 object BleGattConnectionHandler {
 
     val connectedDevices: MutableList<BluetoothDevice> = CopyOnWriteArrayList()
-
+    val pendingRejections: MutableList<String> = CopyOnWriteArrayList()
     // The server instance listening for connections
     private var gattServer: BluetoothGattServer? = null
     private var appContext: Context? = null
     //UUIDs
     val APP_SERVICE_UUID: UUID = BleConfig.APP_SERVICE_UUID
-    val DATA_CHARACTERISTIC_UUID:UUID= BleConfig.DATA_CHARACTERISTIC_UUID
+    val DATA_CHARACTERISTIC_UUID : UUID = BleConfig.DATA_CHARACTERISTIC_UUID
+    val CCCD_UUID : UUID = BleConfig.CCCD_UUID
+
+
+
+
     //gattCharacteristics
     private var dataCharacteristic: BluetoothGattCharacteristic? = null
+
+    //getting SSID and pass
+
 
     /*TODO */
     var onConnectionPromptRequested: ((String, onKeep: () -> Unit, onRemove: () -> Unit) -> Unit)? = null
@@ -67,9 +76,15 @@ object BleGattConnectionHandler {
         // Initialize the characteristic with READ permission
         dataCharacteristic = BluetoothGattCharacteristic(
             DATA_CHARACTERISTIC_UUID,
-            BluetoothGattCharacteristic.PROPERTY_READ,
+            BluetoothGattCharacteristic.PROPERTY_READ or BluetoothGattCharacteristic.PROPERTY_INDICATE,
             BluetoothGattCharacteristic.PERMISSION_READ
         )
+        val cccd = BluetoothGattDescriptor(
+            CCCD_UUID,
+            BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE
+        )
+
+        dataCharacteristic?.addDescriptor(cccd)
 
         val service =
             BluetoothGattService(APP_SERVICE_UUID, BluetoothGattService.SERVICE_TYPE_PRIMARY)
@@ -78,7 +93,23 @@ object BleGattConnectionHandler {
         gattServer?.addService(service)
     }
 
+    var WifiCredentials: String =""
+    fun changeWifiCredential(stringValue:String){
+        WifiCredentials=stringValue
+        if(stringValue.isNotEmpty()){
+            sendIndication(WifiCredentials)
+        }
+    }
 
+    @SuppressLint("MissingPermission")
+    private fun sendIndication(message: String) {
+        val data = message.toByteArray(Charsets.UTF_8)
+        dataCharacteristic?.value = data
+        connectedDevices.forEach { device ->
+            // true flag signifies an Indication rather than a Notification
+            gattServer?.notifyCharacteristicChanged(device, dataCharacteristic, true)
+        }
+    }
 
     @SuppressLint("MissingPermission")
     fun stopServer() {
@@ -109,18 +140,25 @@ object BleGattConnectionHandler {
                                 /*TODO setup WifiP2P*/
 
                                 appContext?.let { ctx ->
-                                    WifiP2PGenerator.startAsGroupOwner(ctx) { credentials ->
-                                        // Once credentials are generated, load them into the characteristic
-                                        dataCharacteristic?.value = credentials.toByteArray(Charsets.UTF_8)
-                                    }
+                                    WifiP2PGenerator.startAsGroupOwner(ctx,{changeWifiCredential(it)})
                                 }
 
                                 /*TODO end*/
                             },
                             {
                                 showToast("Connection rejected: $deviceAddress", true)
-                                // Actively disconnect the device!
-                                gattServer?.cancelConnection(device)
+                                pendingRejections.add(deviceAddress)
+                                val data = "DENIED".toByteArray(Charsets.UTF_8)
+                                dataCharacteristic?.value = data
+                                gattServer?.notifyCharacteristicChanged(device, dataCharacteristic, true)
+
+
+                                // if there is a problem in subscribing to indication, remove them after 4s
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    gattServer?.cancelConnection(device)
+                                    pendingRejections.remove(deviceAddress)
+                                }, 4000L)
+
                             }
                         )
                     }
@@ -135,39 +173,48 @@ object BleGattConnectionHandler {
                 removeDevice(device)
             }
         }
+        override fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
+            super.onMtuChanged(device, mtu)
+            showToast("MTU updated to $mtu for ${device.address}", true)
 
-        /*TODO setup characteristic read request from the sender*/
+        }
+        //
         @SuppressLint("MissingPermission")
-        override fun onCharacteristicReadRequest(
-            device: BluetoothDevice,
-            requestId: Int,
-            offset: Int,
-            characteristic: BluetoothGattCharacteristic
+        override fun onDescriptorWriteRequest(
+            device: BluetoothDevice, requestId: Int, descriptor: BluetoothGattDescriptor,
+            preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray?
         ) {
-            super.onCharacteristicReadRequest(device, requestId, offset, characteristic)
-            //checking read request
-            showToast("Got read request",true)
-            if (characteristic.uuid == DATA_CHARACTERISTIC_UUID) {
-                // If credentials aren't ready yet, send a placeholder or empty array
-                // so the client knows to retry.
-                val responseValue = characteristic.value ?: "PENDING".toByteArray(Charsets.UTF_8)
-                showToast("MSG sent",true)
-                gattServer?.sendResponse(
-                    device,
-                    requestId,
-                    BluetoothGatt.GATT_SUCCESS,
-                    offset,
-                    responseValue
-                )
-            } else {
-                gattServer?.sendResponse(
-                    device,
-                    requestId,
-                    BluetoothGatt.GATT_FAILURE,
-                    offset,
-                    null
-                )
+            super.onDescriptorWriteRequest(device, requestId, descriptor, preparedWrite, responseNeeded, offset, value)
+            if (descriptor.uuid == CCCD_UUID) {
+                if (responseNeeded) {
+                    gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value)
+                }
+                /*TODO check the code*/
+                Handler(Looper.getMainLooper()).postDelayed({
+                    val address = device.address
+
+                    // 1. Check if they were rejected while they were setting up
+                    if (pendingRejections.contains(address)) {
+                        val data = "DENIED".toByteArray(Charsets.UTF_8)
+                        dataCharacteristic?.value = data
+                        gattServer?.notifyCharacteristicChanged(device, dataCharacteristic, true)
+
+                        // Disconnect after sending
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            gattServer?.cancelConnection(device)
+                            pendingRejections.remove(address)
+                        }, 500L)
+                    }
+                    // 2. Or, check if we already have the Wi-Fi credentials ready for them
+                    else if (WifiCredentials.isNotEmpty()) {
+                        val data = WifiCredentials.toByteArray(Charsets.UTF_8)
+                        dataCharacteristic?.value = data
+                        gattServer?.notifyCharacteristicChanged(device, dataCharacteristic, true)
+                    }
+                }, 250L)
+                /*TODO end*/
             }
         }
+
     }
 }
