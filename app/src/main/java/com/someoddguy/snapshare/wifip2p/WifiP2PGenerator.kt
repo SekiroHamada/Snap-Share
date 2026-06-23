@@ -49,10 +49,6 @@ object WifiP2PGenerator {
         })
     }
 
-    // Removed cancelConnect — it was causing unnecessary noise.
-    // cancelConnect only works during an active connection handshake,
-    // not when a group already exists. Skip it entirely.
-
     @SuppressLint("MissingPermission")
     private fun removeExistingGroup(
         manager: WifiP2pManager,
@@ -101,19 +97,17 @@ object WifiP2PGenerator {
         manager.createGroup(channel, object : WifiP2pManager.ActionListener {
             @SuppressLint("MissingPermission")
             override fun onSuccess() {
-                showToast("Group created. Fetching credentials...",true)
-
+                //showToast("Group created. Fetching credentials...",true)
                 // Small delay before requestGroupInfo — group info may not be populated instantly
                 delayThen(1000L) {
                     manager.requestGroupInfo(channel) { group ->
                         if (group != null && group.isGroupOwner) {
                             val ssid = group.networkName
                             val pass = group.passphrase
-                            val goIp = group.owner.deviceAddress
                             if (ssid != null && pass != null) {
                                 //send characteristics to the sender
-                                changeWifiCredentials("$ssid|$pass|$goIp")
-                                showToast("$ssid|$pass|$goIp",false)
+                                changeWifiCredentials("$ssid|$pass")
+                                showToast("$ssid|$pass",false)
 
                                 //start server
                                 ServerSocketGenerator.startServer()

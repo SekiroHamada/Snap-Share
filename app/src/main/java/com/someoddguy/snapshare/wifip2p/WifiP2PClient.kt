@@ -19,12 +19,11 @@ object WifiP2PClient {
 
     var SSID : String = ""
     var PASS : String = ""
-    var GO_IP : String = ""
+    val GO_IP : String = "192.168.49.1"
 
-    fun saveWifiCredentials(ssid: String, pass: String, goIp:String) {
+    fun saveWifiCredentials(ssid: String, pass: String) {
         SSID = ssid
         PASS = pass
-        GO_IP = goIp
     }
     fun connectToGroupOwner(context: Context) {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -42,13 +41,13 @@ object WifiP2PClient {
             .setNetworkSpecifier(specifier)
             .build()
 
-        showToast("Joining Wi-Fi Network: $SSID", short = true)
+        //showToast("Joining Wi-Fi Network: $SSID", short = true)
 
         // 3. Request the connection
         connectivityManager.requestNetwork(request, object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                showToast("Successfully connected to Group Owner!",true)
+                //showToast("Successfully connected to Group Owner!",true)
 
                 // Bind the process to this network so your subsequent Socket connections route through the P2P WiFi and not mobile data.
                 connectivityManager.bindProcessToNetwork(network)

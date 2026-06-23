@@ -138,12 +138,11 @@
                         // Otherwise, we assume it's the Wi-Fi P2P credentials
                         else if (valueString.contains("|")) {
                             val credentials = valueString.split("|")
-                            if (credentials.size == 3) {
+                            if (credentials.size == 2) {
                                 val ssid = credentials[0]
                                 val pass = credentials[1]
-                                val goIp = credentials[2]
                                 showToast("Credentials received! Connecting to Wi-Fi...", true)
-                                WifiP2PClient.saveWifiCredentials( ssid, pass,goIp)
+                                WifiP2PClient.saveWifiCredentials( ssid, pass)
 
                             }
                         }else if(valueString == "ServerSocket"){

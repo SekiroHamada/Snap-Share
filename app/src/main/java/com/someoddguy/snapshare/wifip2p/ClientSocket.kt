@@ -16,7 +16,7 @@ object ClientSocket {
         groupOwnerIP: String,
         /*TODO change the port*/
         port: Int=7878){
-        showToast("Socket connection initialization",true)
+        //showToast("Socket connection initialization",true)
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val socket = network.socketFactory.createSocket(groupOwnerIP, port)
@@ -45,8 +45,6 @@ object ClientSocket {
                     "Some Exception Occured!",
                     true
                 )
-            } finally {
-                showToast("finally", true)
             }
         }
 
