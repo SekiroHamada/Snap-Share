@@ -69,7 +69,7 @@
                         if (newState == BluetoothProfile.STATE_CONNECTED) {
                             showToast("Connected to $deviceName",true)
                             addConnection(gatt)
-                            gatt.requestMtu(512)
+                            gatt.requestMtu(517)
 
                         } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                             showToast("Successfully disconnected from $deviceName",true)
@@ -138,63 +138,25 @@
                         // Otherwise, we assume it's the Wi-Fi P2P credentials
                         else if (valueString.contains("|")) {
                             val credentials = valueString.split("|")
-                            if (credentials.size == 2) {
+                            if (credentials.size == 3) {
                                 val ssid = credentials[0]
                                 val pass = credentials[1]
-
+                                val goIp = credentials[2]
                                 showToast("Credentials received! Connecting to Wi-Fi...", true)
+                                WifiP2PClient.saveWifiCredentials( ssid, pass,goIp)
 
-
-                                appContext?.let { ctx ->
-                                    WifiP2PClient.connectToGroupOwner(ctx, ssid, pass)
-                                }
                             }
+                        }else if(valueString == "ServerSocket"){
+                            appContext?.let{ctx->
+                                WifiP2PClient.connectToGroupOwner(ctx)
+                            }
+
                         }else{
                             showToast("Received Unknown Indication!",true)
                         }
                     }
                 }
-                /*@Deprecated("onCharacteristicRead")
-                override fun onCharacteristicRead(
-                    gatt: BluetoothGatt,
-                    characteristic: BluetoothGattCharacteristic,
-                    status: Int
-                ) {
-                    if (status == BluetoothGatt.GATT_SUCCESS) {
-                        val valueBytes = characteristic.value
-                        if (valueBytes != null) {
-                            val valueString = String(valueBytes, Charsets.UTF_8)
 
-                            // 5. Check if the Receiver is still generating the credentials
-                            if (valueString == "PENDING" || valueString.isEmpty()) {
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    //2 sec delay
-                                    delay(2000L)
-                                    readWithRetry(gatt, characteristic)
-                                }
-
-
-                            } else {
-                                // 6. Success! We have the credentials.
-                                val credentials = valueString.split("|")
-                                if (credentials.size == 2) {
-                                    val ssid = credentials[0]
-                                    val pass = credentials[1]
-
-                                    showToast("Credentials received! Connecting to Wi-Fi...", true)
-
-                                    // Trigger the Wi-Fi P2P connection logic
-                                    appContext?.let { ctx ->
-                                        WifiP2PClient.connectToGroupOwner(ctx, ssid, pass)
-                                    }
-
-                                    // Optional: You can disconnect the GATT connection here
-                                    // if you strictly only need Wi-Fi P2P moving forward.
-                                }
-                            }
-                        }
-                    }
-                }*/
             }
             @SuppressLint("MissingPermission")
             val bluetoothGatt = result.device.connectGatt(

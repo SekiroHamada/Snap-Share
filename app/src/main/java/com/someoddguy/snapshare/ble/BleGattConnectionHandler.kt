@@ -128,7 +128,6 @@ object BleGattConnectionHandler {
         @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
             val deviceAddress = device.address
-
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     Handler(Looper.getMainLooper()).post {
@@ -137,13 +136,9 @@ object BleGattConnectionHandler {
                             {
                                 showToast("Connected to Central: $deviceAddress", true)
                                 addDevice(device)
-                                /*TODO setup WifiP2P*/
-
                                 appContext?.let { ctx ->
                                     WifiP2PGenerator.startAsGroupOwner(ctx,{changeWifiCredential(it)})
                                 }
-
-                                /*TODO end*/
                             },
                             {
                                 showToast("Connection rejected: $deviceAddress", true)

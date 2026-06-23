@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -40,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.navigation.Routes
@@ -54,6 +56,12 @@ fun Context.findActivity(): Activity? {
     return null
 }
 
+fun Context.ungrantedPermissions(permissions: Array<String>): Array<String> {
+    return permissions.filter {
+        ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+    }.toTypedArray()
+}
+
 @Composable
 fun SplashScreen(navHostController: NavHostController) {
     val context = LocalContext.current
@@ -65,17 +73,13 @@ fun SplashScreen(navHostController: NavHostController) {
     // Safely build the permissions array based on exact OS versions inside a remember block
     val permissionsToRequest = remember {
         val perms = mutableListOf<String>()
-
+        perms.add(Manifest.permission.ACCESS_FINE_LOCATION)
         // 1. Bluetooth permissions (Android 12+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             perms.add(Manifest.permission.BLUETOOTH_SCAN)
             perms.add(Manifest.permission.BLUETOOTH_CONNECT)
             perms.add(Manifest.permission.BLUETOOTH_ADVERTISE)
-        } else {
-            // Legacy Location for Bluetooth/Wi-Fi scanning on Android 11 and below
-            perms.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
-
         // 2. Wi-Fi permissions (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             perms.add(Manifest.permission.NEARBY_WIFI_DEVICES)
@@ -188,7 +192,27 @@ fun SplashScreen(navHostController: NavHostController) {
 
     LaunchedEffect(Unit) {
         delay(timeMillis = 1000)
-        permissionLauncher.launch(permissionsToRequest)
+        val ungranted = context.ungrantedPermissions(permissionsToRequest)
+        if (ungranted.isEmpty()) {
+            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            val btAdapter = bluetoothManager.adapter
+            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+            if (btAdapter?.isEnabled != true) {
+                enableBluetoothLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+            } else if (!wifiManager.isWifiEnabled) {
+                val enableWifiIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    Intent(Settings.Panel.ACTION_WIFI)
+                } else {
+                    Intent(Settings.ACTION_WIFI_SETTINGS)
+                }
+                enableWifiLauncher.launch(enableWifiIntent)
+            } else {
+                navigateToHome()
+            }
+        } else {
+            permissionLauncher.launch(ungranted)
+        }
     }
 
     if (showSettingsDialog) {
@@ -247,7 +271,12 @@ fun SplashScreen(navHostController: NavHostController) {
                 Button(
                     onClick = {
                         showRetryButton = false
-                        permissionLauncher.launch(permissionsToRequest)
+                        val ungranted = context.ungrantedPermissions(permissionsToRequest)
+                        if (ungranted.isEmpty()) {
+                            permissionLauncher.launch(permissionsToRequest)
+                        } else {
+                            permissionLauncher.launch(ungranted)
+                        }
                     }
                 ) {
                     Text("Grant Permissions & Continue")
