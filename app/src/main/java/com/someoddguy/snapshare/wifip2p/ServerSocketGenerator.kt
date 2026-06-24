@@ -1,5 +1,6 @@
 package com.someoddguy.snapshare.wifip2p
 
+import com.someoddguy.snapshare.utils.ConnectionValidationString
 import com.someoddguy.snapshare.utils.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,11 +12,11 @@ object ServerSocketGenerator {
     fun startServer(port: Int = 7878) {
         CoroutineScope(Dispatchers.IO).launch {
             val serverSocket = ServerSocket(port)
-            showToast("Server waiting on port $port",true)
+            ConnectionValidationString.updateStatus("Server waiting on port $port...")
             BleGattConnectionHandler.changeWifiCredential("ServerSocket")
 
             val client = serverSocket.accept() // blocks until client connects
-            showToast("Client connected: ${client.inetAddress}",true)
+            ConnectionValidationString.updateStatus("Client connected: ${client.inetAddress}")
             /*TODO read incoming data*/
             //handleClient(client)
             serverSocket.close()

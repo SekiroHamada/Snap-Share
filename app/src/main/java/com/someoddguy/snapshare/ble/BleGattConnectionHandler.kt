@@ -137,10 +137,10 @@ object BleGattConnectionHandler {
                             deviceAddress,
                             {
                                 addDevice(device)
-                                //TODO added these lines for validation page
+                                //for the new screen
                                 ConnectionValidationString.updateStart(true)
                                 ConnectionValidationString.updateStatus("Connected to Central $deviceAddress")
-                                //TODO end
+
                                 appContext?.let { ctx ->
                                     WifiP2PGenerator.startAsGroupOwner(ctx,{changeWifiCredential(it)})
                                 }
@@ -173,12 +173,13 @@ object BleGattConnectionHandler {
                 removeDevice(device)
             }
         }
+        //TODO remove this redundant fun
         override fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
             super.onMtuChanged(device, mtu)
-            showToast("MTU updated to $mtu for ${device.address}", true)
+            //showToast("MTU updated to $mtu for ${device.address}", true)
 
         }
-        //
+
         @SuppressLint("MissingPermission")
         override fun onDescriptorWriteRequest(
             device: BluetoothDevice, requestId: Int, descriptor: BluetoothGattDescriptor,
@@ -189,7 +190,6 @@ object BleGattConnectionHandler {
                 if (responseNeeded) {
                     gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value)
                 }
-                /*TODO check the code*/
                 Handler(Looper.getMainLooper()).postDelayed({
                     val address = device.address
 
@@ -212,7 +212,6 @@ object BleGattConnectionHandler {
                         gattServer?.notifyCharacteristicChanged(device, dataCharacteristic, true)
                     }
                 }, 250L)
-                /*TODO end*/
             }
         }
 

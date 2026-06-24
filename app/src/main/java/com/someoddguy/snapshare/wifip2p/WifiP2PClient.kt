@@ -9,6 +9,7 @@ import android.net.wifi.WifiNetworkSpecifier
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.someoddguy.snapshare.utils.ConnectionValidationString
 import com.someoddguy.snapshare.utils.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,25 +42,23 @@ object WifiP2PClient {
             .setNetworkSpecifier(specifier)
             .build()
 
-        //showToast("Joining Wi-Fi Network: $SSID", short = true)
+        ConnectionValidationString.updateStatus("Joining Wi-Fi Network : $SSID")
 
         // 3. Request the connection
         connectivityManager.requestNetwork(request, object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                //showToast("Successfully connected to Group Owner!",true)
+                ConnectionValidationString.updateStatus("Successfully connected to Group Owner!")
 
                 // Bind the process to this network so your subsequent Socket connections route through the P2P WiFi and not mobile data.
                 connectivityManager.bindProcessToNetwork(network)
-
-                showToast("$SSID|$PASS|$GO_IP",false)
-
+                ConnectionValidationString.updateStatus("Starting Socket with Network : $SSID")
                 ClientSocket.startSocketClient(network,GO_IP)
             }
 
             override fun onUnavailable() {
                 super.onUnavailable()
-                showToast("Failed to connect to the network.",true)
+                ConnectionValidationString.updateStatus("Failed to connect to the network.")
             }
         })
     }

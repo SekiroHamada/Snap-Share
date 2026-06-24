@@ -91,7 +91,7 @@
                             // Enable local notifications
                             gatt.setCharacteristicNotification(characteristic, true)
                             // Write to the CCCD descriptor to enable server-side indications
-                            val descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
+                            val descriptor = characteristic.getDescriptor(BleConfig.CCCD_UUID)
                             if (descriptor != null) {
                                 descriptor.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
                                 gatt.writeDescriptor(descriptor)
@@ -107,7 +107,7 @@
                 override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
                     super.onMtuChanged(gatt, mtu, status)
                     if(status== BluetoothGatt.GATT_SUCCESS){
-                        showToast("Mtu expanded to $mtu",true)
+                        //showToast("Mtu expanded to $mtu",true)
                         gatt.discoverServices()
                     }
                 }
@@ -133,15 +133,14 @@
                         }
                         // Otherwise, we assume it's the Wi-Fi P2P credentials
                         else if (valueString.contains("|")) {
-                            //TODO added these lines for validation page
                             ConnectionValidationString.updateStart(true)
                             ConnectionValidationString.updateStatus("Connected to Central")
-                            //TODO end
+
                             val credentials = valueString.split("|")
                             if (credentials.size == 2) {
                                 val ssid = credentials[0]
                                 val pass = credentials[1]
-                                showToast("Credentials received! Connecting to Wi-Fi...", true)
+                                ConnectionValidationString.updateStatus("Credentials received! Connecting to Wi-Fi...")
                                 WifiP2PClient.saveWifiCredentials( ssid, pass)
 
                             }
