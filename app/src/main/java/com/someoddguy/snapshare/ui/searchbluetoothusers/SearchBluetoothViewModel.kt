@@ -15,11 +15,14 @@ import android.content.Context
 import android.os.ParcelUuid
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.someoddguy.snapshare.ble.BleConfig
+import com.someoddguy.snapshare.utils.ConnectionValidationString
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 // Changed to AndroidViewModel so we have safe access to the application context
 // to get the Bluetooth System Service.
@@ -110,7 +113,17 @@ class SearchBluetoothViewModel(application: Application) : AndroidViewModel(appl
         }
         val context=getApplication<Application>()
         BleGattConnector.startConnection(context,result)
+    }
 
-
+    //TODO added status check for Connection validation
+    //for starting connection
+    private val _startStatus = MutableStateFlow(false)
+    val startStatus : StateFlow<Boolean> = _startStatus.asStateFlow()
+    init{
+        viewModelScope.launch {
+            ConnectionValidationString.start.collect{ newStatus ->
+                _startStatus.value = newStatus
+            }
+        }
     }
 }

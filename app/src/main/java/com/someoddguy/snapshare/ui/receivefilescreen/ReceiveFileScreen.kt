@@ -20,6 +20,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
+import com.someoddguy.snapshare.navigation.Routes
 
 @Composable
 fun ReceiveFileScreen(
@@ -29,6 +30,14 @@ fun ReceiveFileScreen(
     val context = LocalContext.current
     // Observe the state from the ViewModel
     val isAdvertising by viewModel.isAdvertising.collectAsState()
+    //TODO added status check to go to the next page
+    //for ConnectionValidation
+    val isConnecting by viewModel.startStatus.collectAsState()
+    if(isConnecting){
+        navHostController.navigate(Routes.ConnectionValidationScreen) {}
+    }
+
+
 
     //Prompt Window code for gattServer receiving a connection
     if (viewModel.showConnectionDialog) {

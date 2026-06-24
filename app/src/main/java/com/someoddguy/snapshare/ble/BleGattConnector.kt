@@ -10,14 +10,10 @@
     import android.bluetooth.BluetoothProfile
     import android.bluetooth.le.ScanResult
     import android.content.Context
-    import android.net.wifi.aware.Characteristics
     import com.someoddguy.snapshare.ble.BleConfig
+    import com.someoddguy.snapshare.utils.ConnectionValidationString
     import com.someoddguy.snapshare.utils.showToast
     import com.someoddguy.snapshare.wifip2p.WifiP2PClient
-    import kotlinx.coroutines.CoroutineScope
-    import kotlinx.coroutines.Dispatchers
-    import kotlinx.coroutines.delay
-    import kotlinx.coroutines.launch
     import java.util.UUID
     import java.util.concurrent.CopyOnWriteArrayList
 
@@ -137,6 +133,10 @@
                         }
                         // Otherwise, we assume it's the Wi-Fi P2P credentials
                         else if (valueString.contains("|")) {
+                            //TODO added these lines for validation page
+                            ConnectionValidationString.updateStart(true)
+                            ConnectionValidationString.updateStatus("Connected to Central")
+                            //TODO end
                             val credentials = valueString.split("|")
                             if (credentials.size == 2) {
                                 val ssid = credentials[0]

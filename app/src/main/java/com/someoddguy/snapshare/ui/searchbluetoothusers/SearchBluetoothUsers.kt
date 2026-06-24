@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
+import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.ui.searchdevicecard.SearchDeviceCard
 
 @SuppressLint("MissingPermission")
@@ -26,6 +27,13 @@ fun SearchBluetoothUsers(
 ) {
     val scanResults by viewModel.scanResults.collectAsState()
     val isScanning by viewModel.isScanning.collectAsState()
+
+    //TODO added status check to go to the next page
+    //for ConnectionValidation
+    val isConnecting by viewModel.startStatus.collectAsState()
+    if(isConnecting){
+        navHostController.navigate(Routes.ConnectionValidationScreen) {}
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),

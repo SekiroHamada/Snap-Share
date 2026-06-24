@@ -45,7 +45,7 @@ fun SendFileScreen(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris: List<Uri> ->
         // Pass the result directly to the ViewModel
-        viewModel.handleFilesSelected(uris)
+        viewModel.addFiles(uris)
     }
 
     Surface(
@@ -79,7 +79,7 @@ fun SendFileScreen(
                         FileCard(
                             uri = uri,
                             onRemoveClick = { uriToRemove ->
-                                viewModel.removeFile(uriToRemove)
+                                viewModel.removeSelectedFile(uriToRemove)
                             }
                         )
                     }

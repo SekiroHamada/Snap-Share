@@ -16,8 +16,10 @@ import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresPermission
 import com.someoddguy.snapshare.ble.BleConfig
+import com.someoddguy.snapshare.utils.ConnectionValidationString
 import com.someoddguy.snapshare.utils.showToast
 import com.someoddguy.snapshare.wifip2p.WifiP2PGenerator
+import java.sql.Connection
 import java.util.UUID
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -134,8 +136,11 @@ object BleGattConnectionHandler {
                         onConnectionPromptRequested?.invoke(
                             deviceAddress,
                             {
-                                showToast("Connected to Central: $deviceAddress", true)
                                 addDevice(device)
+                                //TODO added these lines for validation page
+                                ConnectionValidationString.updateStart(true)
+                                ConnectionValidationString.updateStatus("Connected to Central $deviceAddress")
+                                //TODO end
                                 appContext?.let { ctx ->
                                     WifiP2PGenerator.startAsGroupOwner(ctx,{changeWifiCredential(it)})
                                 }

@@ -12,11 +12,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.someoddguy.snapshare.ble.BleConfig
+import com.someoddguy.snapshare.utils.ConnectionValidationString
 import com.someoddguy.snapshare.utils.showToast
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class ReceiveFileViewModel : ViewModel() {
 
@@ -40,7 +43,6 @@ class ReceiveFileViewModel : ViewModel() {
     private var pendingRemoveAction: (() -> Unit)? = null
 
     init {
-        // 1. Listen for connection requests from the singleton
         BleGattConnectionHandler.onConnectionPromptRequested = { address, onKeep, onRemove ->
             // Update state to trigger the Compose dialog
             connectingDeviceAddress = address
@@ -50,13 +52,11 @@ class ReceiveFileViewModel : ViewModel() {
         }
     }
 
-    // 2. Called by Compose when the user clicks "Keep"
     fun onKeepClicked() {
         pendingKeepAction?.invoke()
         clearDialogState()
     }
 
-    // 3. Called by Compose when the user clicks "Remove"
     fun onRemoveClicked() {
         pendingRemoveAction?.invoke()
         clearDialogState()
@@ -139,6 +139,18 @@ class ReceiveFileViewModel : ViewModel() {
             BleGattConnectionHandler.stopServer()
             showToast("Advertising stopped!",true)
 
+        }
+    }
+
+    //TODO added status check for Connection validation
+    //for starting connection
+    private val _startStatus = MutableStateFlow(false)
+    val startStatus : StateFlow<Boolean> = _startStatus.asStateFlow()
+    init{
+        viewModelScope.launch {
+            ConnectionValidationString.start.collect{ newStatus ->
+                _startStatus.value = newStatus
+            }
         }
     }
 }
