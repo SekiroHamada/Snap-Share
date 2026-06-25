@@ -2,7 +2,7 @@ package com.someoddguy.snapshare.ui.sendfilescreen
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
-import com.someoddguy.snapshare.filepackets.SendFilePackets
+import com.someoddguy.snapshare.filepackettransfer.SendFilePackets
 import kotlinx.coroutines.flow.StateFlow
 
 class SendFileViewModel : ViewModel() {

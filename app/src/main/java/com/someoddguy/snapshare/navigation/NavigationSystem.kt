@@ -6,7 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationScreen
 import com.someoddguy.snapshare.ui.homescreen.HomeScreen
-import com.someoddguy.snapshare.ui.receivefilescreen.ReceiveFileScreen
+import com.someoddguy.snapshare.ui.receiveradvertiserscreen.ReceiveFileScreen
 import com.someoddguy.snapshare.ui.searchbluetoothusers.SearchBluetoothUsers
 import com.someoddguy.snapshare.ui.sendfilescreen.SendFileScreen
 import com.someoddguy.snapshare.ui.splashscreen.SplashScreen

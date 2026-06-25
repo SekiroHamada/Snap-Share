@@ -1,103 +1,89 @@
 package com.someoddguy.snapshare.ui.searchbluetoothusers
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import com.someoddguy.snapshare.R
-import com.someoddguy.snapshare.navigation.Routes
-import com.someoddguy.snapshare.ui.searchbluetoothusers.searchdevicecard.SearchDeviceCard
+import android.bluetooth.BluetoothManager
+import android.bluetooth.le.BluetoothLeScanner
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
+import android.content.Context
+import android.os.ParcelUuid
+import android.util.Log
+import com.someoddguy.snapshare.ble.BleConfig
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
-@SuppressLint("MissingPermission")
-@Composable
-fun SearchBluetoothUsers(
-    navHostController: NavHostController,
-    viewModel: SearchBluetoothViewModel = viewModel()
-) {
-    val scanResults by viewModel.scanResults.collectAsState()
-    val isScanning by viewModel.isScanning.collectAsState()
+object SearchBluetoothUsers {
 
-    //TODO added status check to go to the next page
-    //for ConnectionValidation
-    val isConnecting by viewModel.startStatus.collectAsState()
-    if(isConnecting){
-        navHostController.navigate(Routes.ConnectionValidationScreen) {}
+    // Global state for checking if app is scanning or not
+    private val _isScanning = MutableStateFlow(false)
+    val isScanning: StateFlow<Boolean> = _isScanning.asStateFlow()
+
+    // Global state storing the nearby devices
+    private val _scanResults = MutableStateFlow<List<ScanResult>>(emptyList())
+    val scanResults: StateFlow<List<ScanResult>> = _scanResults.asStateFlow()
+
+    private var bleScanner: BluetoothLeScanner? = null
+
+    private val scanSettings = ScanSettings.Builder()
+        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+        .build()
+
+    private val targetServiceUuid = ParcelUuid(BleConfig.APP_SERVICE_UUID)
+    private val scanFilter = ScanFilter.Builder()
+        .setServiceUuid(targetServiceUuid)
+        .build()
+    private val filters = listOf(scanFilter)
+
+    private val scanCallback = object : ScanCallback() {
+        override fun onScanResult(callbackType: Int, result: ScanResult) {
+            addOrUpdateDevice(result)
+            Log.i("ScanCallback", "Found BLE device! address: ${result.device.address}")
+        }
+
+        override fun onScanFailed(errorCode: Int) {
+            Log.e("ScanCallback", "onScanFailed: code $errorCode")
+            _isScanning.value = false
+        }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = colorResource(R.color.black),
-        contentColor = colorResource(R.color.white)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 30.dp, bottom = 30.dp, start = 10.dp, end = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+    private fun addOrUpdateDevice(result: ScanResult) {
+        _scanResults.update { currentList ->
+            val mutableList = currentList.toMutableList()
+            val indexQuery = mutableList.indexOfFirst { it.device.address == result.device.address }
 
-            Spacer(modifier = Modifier.height(30.dp))
-
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .then(
-                        if (scanResults.isNotEmpty()) {
-                            Modifier.border(width = 3.dp, color = colorResource(id = R.color.white))
-                        } else {
-                            Modifier
-                        }
-                    )
-                    .padding(all = 5.dp)
-            ) {
-                items(
-                    items = scanResults,
-                    key = { result -> result.device.address }
-                ) { result ->
-                    SearchDeviceCard(
-                        deviceName = result.device.name ?: "Unknown Device",
-                        deviceAddress = result.device.address,
-                        onClick={
-                            viewModel.startConnection(result)
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(5.dp))
-                }
+            if (indexQuery != -1) {
+                mutableList[indexQuery] = result
+            } else {
+                mutableList.add(result)
             }
-
-            Spacer(modifier = Modifier.height(30.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Button(
-                    onClick = {
-                        if(!isScanning){
-                            // Permissions are now handled at Splash Screen
-                            viewModel.startBleScan()
-                        }else{
-                            viewModel.stopBleScan()
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(if(!isScanning)"Scan" else "Stop Scan")
-                }
-            }
+            mutableList
         }
+    }
+
+    fun clearResults() {
+        _scanResults.value = emptyList()
+    }
+
+    @SuppressLint("MissingPermission")
+    fun startBleScan(context: Context) {
+        // Initialize scanner if it hasn't been created yet
+        if (bleScanner == null) {
+            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            bleScanner = bluetoothManager.adapter.bluetoothLeScanner
+        }
+
+        clearResults()
+        bleScanner?.startScan(filters, scanSettings, scanCallback)
+        _isScanning.value = true
+    }
+
+    @SuppressLint("MissingPermission")
+    fun stopBleScan() {
+        bleScanner?.stopScan(scanCallback)
+        _isScanning.value = false
     }
 }

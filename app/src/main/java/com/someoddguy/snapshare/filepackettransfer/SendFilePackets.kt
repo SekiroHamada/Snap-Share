@@ -1,4 +1,4 @@
-package com.someoddguy.snapshare.filepackets
+package com.someoddguy.snapshare.filepackettransfer
 
 import android.content.Context
 import android.net.Uri

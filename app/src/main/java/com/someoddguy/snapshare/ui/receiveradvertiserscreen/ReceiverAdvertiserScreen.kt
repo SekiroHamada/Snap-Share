@@ -1,9 +1,5 @@
-package com.someoddguy.snapshare.ui.receivefilescreen
+package com.someoddguy.snapshare.ui.receiveradvertiserscreen
 
-import android.app.Activity
-import android.content.Context
-import android.os.Build
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -25,7 +21,7 @@ import com.someoddguy.snapshare.navigation.Routes
 @Composable
 fun ReceiveFileScreen(
     navHostController: NavHostController,
-    viewModel: ReceiveFileViewModel = viewModel()
+    viewModel: ReceiverAdvertiserViewModel = viewModel()
 ) {
     val context = LocalContext.current
     // Observe the state from the ViewModel

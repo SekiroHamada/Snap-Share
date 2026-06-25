@@ -1,10 +1,8 @@
 package com.someoddguy.snapshare.wifip2p
 
-import android.content.Context
-import com.someoddguy.snapshare.filepackets.ReceiveFilePackets
+import com.someoddguy.snapshare.filepackettransfer.ReceiveFilePackets
 import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.utils.ConnectionValidationString
-import com.someoddguy.snapshare.utils.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
