@@ -1,4 +1,4 @@
-package com.someoddguy.snapshare.ui.searchdevicecard
+package com.someoddguy.snapshare.ui.searchbluetoothusers.searchdevicecard
 
 import android.location.Address
 import androidx.compose.foundation.background

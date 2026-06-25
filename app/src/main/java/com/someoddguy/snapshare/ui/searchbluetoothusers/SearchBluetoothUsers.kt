@@ -17,7 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.navigation.Routes
-import com.someoddguy.snapshare.ui.searchdevicecard.SearchDeviceCard
+import com.someoddguy.snapshare.ui.searchbluetoothusers.searchdevicecard.SearchDeviceCard
 
 @SuppressLint("MissingPermission")
 @Composable

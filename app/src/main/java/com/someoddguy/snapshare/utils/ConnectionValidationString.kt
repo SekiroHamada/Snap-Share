@@ -20,7 +20,7 @@ object ConnectionValidationString {
 
     fun updateStatus(status:String){
         CoroutineScope(Dispatchers.Main).launch {
-            delay(500L)
+            delay(100L)
             _statusString.value=status
         }
 
