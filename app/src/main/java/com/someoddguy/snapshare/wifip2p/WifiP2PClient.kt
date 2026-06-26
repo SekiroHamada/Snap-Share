@@ -6,15 +6,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.wifi.WifiNetworkSpecifier
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
-import com.someoddguy.snapshare.utils.ConnectionValidationString
-import com.someoddguy.snapshare.utils.showToast
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 
 object WifiP2PClient {
 

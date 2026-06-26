@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import com.someoddguy.snapshare.utils.ConnectionValidationString
+import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.DataInputStream

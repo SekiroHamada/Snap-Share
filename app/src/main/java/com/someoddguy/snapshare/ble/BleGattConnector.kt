@@ -1,6 +1,5 @@
 
 
-    import android.Manifest
     import android.annotation.SuppressLint
     import android.bluetooth.BluetoothDevice
     import android.bluetooth.BluetoothGatt
@@ -11,7 +10,7 @@
     import android.bluetooth.le.ScanResult
     import android.content.Context
     import com.someoddguy.snapshare.ble.BleConfig
-    import com.someoddguy.snapshare.utils.ConnectionValidationString
+    import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
     import com.someoddguy.snapshare.utils.showToast
     import com.someoddguy.snapshare.wifip2p.WifiP2PClient
     import java.util.UUID

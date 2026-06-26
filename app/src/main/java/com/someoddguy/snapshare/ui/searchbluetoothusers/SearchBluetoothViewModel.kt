@@ -4,7 +4,7 @@ import android.app.Application
 import android.bluetooth.le.ScanResult
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.someoddguy.snapshare.utils.ConnectionValidationString
+import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -1,9 +1,7 @@
 package com.someoddguy.snapshare.ui.connectionvalidationscreen
 
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.someoddguy.snapshare.utils.ConnectionValidationString
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

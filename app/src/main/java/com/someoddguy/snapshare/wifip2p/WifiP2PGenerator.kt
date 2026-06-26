@@ -7,7 +7,7 @@ import android.net.wifi.p2p.WifiP2pManager
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresPermission
-import com.someoddguy.snapshare.utils.ConnectionValidationString
+import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.utils.showToast
 
 object WifiP2PGenerator {

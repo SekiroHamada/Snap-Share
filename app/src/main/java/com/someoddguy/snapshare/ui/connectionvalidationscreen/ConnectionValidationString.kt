@@ -1,4 +1,4 @@
-package com.someoddguy.snapshare.utils
+package com.someoddguy.snapshare.ui.connectionvalidationscreen
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,8 +19,8 @@ object ConnectionValidationString {
     val statusString: StateFlow<String> = _statusString.asStateFlow()
 
     fun updateStatus(status:String){
-        CoroutineScope(Dispatchers.Main).launch {
-            delay(100L)
+        CoroutineScope(Dispatchers.IO).launch {
+            delay(1000L)
             _statusString.value=status
         }
 

@@ -3,7 +3,7 @@ package com.someoddguy.snapshare.filepackettransfer
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
-import com.someoddguy.snapshare.utils.ConnectionValidationString
+import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

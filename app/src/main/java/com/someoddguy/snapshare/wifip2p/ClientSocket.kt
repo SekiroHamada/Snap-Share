@@ -3,7 +3,7 @@ package com.someoddguy.snapshare.wifip2p
 import android.net.Network
 import com.someoddguy.snapshare.filepackettransfer.SendFilePackets
 import com.someoddguy.snapshare.globalcontext.GlobalContext
-import com.someoddguy.snapshare.utils.ConnectionValidationString
+import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.utils.CustomException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
