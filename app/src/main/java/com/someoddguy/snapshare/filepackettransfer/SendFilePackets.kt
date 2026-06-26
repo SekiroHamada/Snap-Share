@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
+import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,10 +50,15 @@ object SendFilePackets {
                 }
 
                 ConnectionValidationString.updateStatus("Preparing to send ${uris.size} file(s)...")
+                ConnectionValidationString.updateInitiateTransfer()
+
                 val outputStream = DataOutputStream(socket.getOutputStream())
 
-                // 1. Tell receiver how many files are coming
+                // Tell receiver how many files are coming
                 outputStream.writeInt(uris.size)
+
+                //Send it to the object
+                FileTransferProgress.updateTotalFiles(uris.size)
 
                 for (uri in uris) {
                     var fileName = "SnapShare_File_${System.currentTimeMillis()}"
@@ -67,27 +73,34 @@ object SendFilePackets {
                             if (sizeIndex != -1) fileSize = cursor.getLong(sizeIndex)
                         }
                     }
+                    FileTransferProgress.updateFileName(fileName)
+                    FileTransferProgress.updateFileSize(fileSize)
 
-                    ConnectionValidationString.updateStatus("Sending metadata: $fileName")
-
-                    // 2. Send metadata
+                    // Send metadata
                     outputStream.writeUTF(fileName)
                     outputStream.writeLong(fileSize)
 
-                    // 3. Stream the file bytes
+                    var bytesSent=0L
+                    FileTransferProgress.updateFileSizeReceived(0L)
+                    // Stream the file bytes
                     context.contentResolver.openInputStream(uri)?.use { inputStream ->
                         val buffer = ByteArray(8192) // 8KB chunks
                         var bytesRead: Int
 
                         while (inputStream.read(buffer).also { bytesRead = it } != -1) {
                             outputStream.write(buffer, 0, bytesRead)
+                            //file size sent
+                            bytesSent += bytesRead
+                            //sent it to the object
+                            FileTransferProgress.updateFileSizeReceived(bytesSent)
                         }
                         outputStream.flush()
                     }
                     ConnectionValidationString.updateStatus("Successfully sent: $fileName")
+                    FileTransferProgress.updateFilesDone()
                 }
 
-                ConnectionValidationString.updateStatus("All files transfered! Closing stream.")
+                FileTransferProgress.updateProgress(true)
 
             } catch (e: Exception) {
                 ConnectionValidationString.updateStatus("Transfer Error: ${e.localizedMessage}")

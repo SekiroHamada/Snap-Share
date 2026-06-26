@@ -5,7 +5,9 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
+import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.DataInputStream
@@ -17,20 +19,26 @@ object ReceiveFilePackets {
         withContext(Dispatchers.IO) {
             try {
                 ConnectionValidationString.updateStatus("Listening for incoming files...")
+
+                FileTransferProgress.updateIsReceiving(true)
+                ConnectionValidationString.updateInitiateTransfer()
+
                 val inputStream = DataInputStream(socket.getInputStream())
 
-                // 1. Read how many files are coming
+                // Read how many files are coming
                 val fileCount = inputStream.readInt()
-                ConnectionValidationString.updateStatus("Incoming transfer: $fileCount file(s).")
+                //send it to the object
+                FileTransferProgress.updateTotalFiles(fileCount)
 
                 for (i in 0 until fileCount) {
-                    // 2. Read metadata
+                    // Read metadata
                     val fileName = inputStream.readUTF()
                     val fileSize = inputStream.readLong()
 
-                    ConnectionValidationString.updateStatus("Receiving: $fileName (${fileSize / 1024} KB)")
+                    FileTransferProgress.updateFileName(fileName)
+                    FileTransferProgress.updateFileSize(fileSize)
 
-                    // 3. Prepare MediaStore to save the file into Downloads/SnapShare
+                    // Prepare MediaStore to save the file into Downloads/SnapShare
                     val contentValues = ContentValues().apply {
                         put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -45,8 +53,9 @@ object ReceiveFilePackets {
                         resolver.openOutputStream(uri)?.use { outputStream ->
                             val buffer = ByteArray(8192) // 8KB chunks
                             var totalRead = 0L
-
-                            // 4. Read exact bytes for this specific file
+                            // send it to the object
+                            FileTransferProgress.updateFileSizeReceived(0L)
+                            // Read exact bytes for this specific file
                             while (totalRead < fileSize) {
                                 // Calculate remaining bytes to ensure we don't bleed into the next file's data
                                 val remainingBytes = fileSize - totalRead
@@ -57,15 +66,17 @@ object ReceiveFilePackets {
 
                                 outputStream.write(buffer, 0, bytesRead)
                                 totalRead += bytesRead
+                                FileTransferProgress.updateFileSizeReceived(totalRead)
                             }
                             outputStream.flush()
                         }
                         ConnectionValidationString.updateStatus("Saved: $fileName in Downloads")
+                        FileTransferProgress.updateFilesDone()
                     } else {
                         ConnectionValidationString.updateStatus("Failed to create file entry for: $fileName")
                     }
                 }
-
+                FileTransferProgress.updateProgress(true)
                 ConnectionValidationString.updateStatus("All files received successfully!")
 
             } catch (e: Exception) {

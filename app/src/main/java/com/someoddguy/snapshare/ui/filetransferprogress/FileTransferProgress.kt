@@ -41,6 +41,12 @@ object FileTransferProgress {
         _fileSize.value = size/1024
     }
 
+    private val _fileSizeReceived = MutableStateFlow(0L)
+    val fileSizeReceived: StateFlow<Long> = _fileSizeReceived.asStateFlow()
+    fun updateFileSizeReceived(size: Long){
+        _fileSizeReceived.value = size/1024
+    }
+
     //tells if transfer is done or not
     private val _isDone = MutableStateFlow(false)
     val isDone: StateFlow<Boolean> = _isDone.asStateFlow()

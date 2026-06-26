@@ -25,4 +25,11 @@ object ConnectionValidationString {
         }
 
     }
+
+    private val _initiateTransfer = MutableStateFlow(false)
+    val initiateTransfer: StateFlow<Boolean> = _initiateTransfer.asStateFlow()
+
+    fun updateInitiateTransfer(){
+        _initiateTransfer.value = true
+    }
 }

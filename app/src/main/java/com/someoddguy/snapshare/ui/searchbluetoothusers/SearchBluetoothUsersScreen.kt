@@ -31,9 +31,12 @@ fun SearchBluetoothUsers(
     //TODO added status check to go to the next page
     //for ConnectionValidation
     val isConnecting by viewModel.startStatus.collectAsState()
-    if(isConnecting){
-        navHostController.navigate(Routes.ConnectionValidationScreen) {}
+    LaunchedEffect(isConnecting) {
+        if(isConnecting){
+            navHostController.navigate(Routes.ConnectionValidationScreen) {}
+        }
     }
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),

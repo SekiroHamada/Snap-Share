@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationScreen
+import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgressScreen
 import com.someoddguy.snapshare.ui.homescreen.HomeScreen
 import com.someoddguy.snapshare.ui.receiveradvertiserscreen.ReceiveFileScreen
 import com.someoddguy.snapshare.ui.searchbluetoothusers.SearchBluetoothUsers
@@ -35,6 +36,9 @@ fun NavigationSystem(){
         }
         composable<Routes.ConnectionValidationScreen>{
             ConnectionValidationScreen(navHostController = navController)
+        }
+        composable<Routes.FileTransferProgressScreen>{
+            FileTransferProgressScreen(navHostController = navController)
         }
     }
 }

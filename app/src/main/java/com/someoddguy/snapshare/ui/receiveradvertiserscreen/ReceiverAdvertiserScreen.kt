@@ -29,11 +29,11 @@ fun ReceiveFileScreen(
     //TODO added status check to go to the next page
     //for ConnectionValidation
     val isConnecting by viewModel.startStatus.collectAsState()
-    if(isConnecting){
-        navHostController.navigate(Routes.ConnectionValidationScreen) {}
+    LaunchedEffect(isConnecting) {
+        if(isConnecting){
+            navHostController.navigate(Routes.ConnectionValidationScreen) {}
+        }
     }
-
-
 
     //Prompt Window code for gattServer receiving a connection
     if (viewModel.showConnectionDialog) {

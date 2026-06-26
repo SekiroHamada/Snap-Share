@@ -20,4 +20,7 @@ sealed class Routes {
 
     @Serializable
     data object ConnectionValidationScreen:Routes()
+
+    @Serializable
+    data object FileTransferProgressScreen:Routes()
 }

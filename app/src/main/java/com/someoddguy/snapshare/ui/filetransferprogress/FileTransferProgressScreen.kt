@@ -55,6 +55,7 @@ fun FileTransferProgressScreen(
 
             Text("$str2 ${uiState.filesDone}/${uiState.totalFiles} File/s")
             Spacer(modifier = Modifier.height(8.dp))
+
             LinearProgressIndicator(
             progress = { uiState.filesDone.toFloat()/uiState.totalFiles.toFloat() },
             modifier = Modifier
@@ -68,7 +69,19 @@ fun FileTransferProgressScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+
             Text("$str1 ${uiState.fileName} : ${uiState.fileSize}")
+            Spacer(modifier = Modifier.height(8.dp))
+            LinearProgressIndicator(
+                progress = {uiState.fileSizeReceived.toFloat()/uiState.fileSize.toFloat()},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .height(8.dp),
+                color = ProgressIndicatorDefaults.linearColor,
+                trackColor = ProgressIndicatorDefaults.linearTrackColor,
+                strokeCap = ProgressIndicatorDefaults.LinearStrokeCap
+            )
         }
     }
     // Example of how you use it going forward:

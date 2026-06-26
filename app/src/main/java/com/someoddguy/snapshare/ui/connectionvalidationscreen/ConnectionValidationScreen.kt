@@ -9,6 +9,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
+import com.someoddguy.snapshare.navigation.Routes
 
 
 @Composable
@@ -26,6 +28,12 @@ fun ConnectionValidationScreen(
     viewModel: ConnectionValidationViewModel= viewModel()
 ){
     val statusText by viewModel.myViewModelString.collectAsState()
+    val initiateTransfer by viewModel.initiateTransfer.collectAsState()
+    LaunchedEffect(initiateTransfer) {
+        if (initiateTransfer) {
+            navHostController.navigate(Routes.FileTransferProgressScreen) {}
+        }
+    }
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = colorResource(R.color.black),
