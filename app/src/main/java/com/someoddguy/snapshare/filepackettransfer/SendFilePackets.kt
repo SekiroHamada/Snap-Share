@@ -28,6 +28,14 @@ object SendFilePackets {
         }
     }
 
+    fun isSelectedFilesEmpty(): Boolean{
+        if(_selectedFileUris.value.isEmpty()){
+            return true
+        }else{
+            return false
+        }
+    }
+
     fun removeFile(uri: Uri) {
         _selectedFileUris.update { currentList ->
             currentList.filter { it != uri }

@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.navigation.Routes
@@ -63,9 +64,15 @@ fun Context.ungrantedPermissions(permissions: Array<String>): Array<String> {
 }
 
 @Composable
-fun SplashScreen(navHostController: NavHostController) {
+fun SplashScreen(
+    navHostController: NavHostController,
+    viewModel: SplashScreenViewModel = viewModel()
+) {
     val context = LocalContext.current
     val activity = context.findActivity()
+
+    // Grab the value from the ViewModel
+    val isFilesEmpty = viewModel.isEmpty
 
     var showRetryButton by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
@@ -89,9 +96,16 @@ fun SplashScreen(navHostController: NavHostController) {
     }
 
     val navigateToHome = {
-        navHostController.navigate(Routes.HomeScreen) {
-            popUpTo(Routes.SplashScreen) { inclusive = true }
+        if(isFilesEmpty){
+            navHostController.navigate(Routes.HomeScreen) {
+                popUpTo(Routes.SplashScreen) { inclusive = true }
+            }
+        }else{
+            navHostController.navigate(Routes.SendFileScreen) {
+                popUpTo(Routes.SplashScreen) { inclusive = true }
+            }
         }
+
     }
 
     // Helper function to check hardware states sequentially
