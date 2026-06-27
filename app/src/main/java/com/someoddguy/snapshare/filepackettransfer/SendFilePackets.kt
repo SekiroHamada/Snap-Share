@@ -1,8 +1,8 @@
 package com.someoddguy.snapshare.filepackettransfer
 
-import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +48,8 @@ object SendFilePackets {
 
 
 
-    suspend fun sendFilesOverSocket(context: Context, socket: Socket) {
+    suspend fun sendFilesOverSocket(socket: Socket) {
+        val context = GlobalContext.appContext
         withContext(Dispatchers.IO) {
             try {
                 val uris = _selectedFileUris.value

@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
@@ -15,7 +16,8 @@ import java.net.Socket
 
 object ReceiveFilePackets {
 
-    suspend fun receiveFilesOverSocket(context: Context, socket: Socket) {
+    suspend fun receiveFilesOverSocket(socket: Socket) {
+        val context = GlobalContext.appContext
         withContext(Dispatchers.IO) {
             try {
                 ConnectionValidationString.updateStatus("Listening for incoming files...")

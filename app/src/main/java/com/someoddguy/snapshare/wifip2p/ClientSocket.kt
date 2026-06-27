@@ -2,7 +2,6 @@ package com.someoddguy.snapshare.wifip2p
 
 import android.net.Network
 import com.someoddguy.snapshare.filepackettransfer.SendFilePackets
-import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.utils.CustomException
 import kotlinx.coroutines.CoroutineScope
@@ -29,8 +28,7 @@ object ClientSocket {
                 val socket = network.socketFactory.createSocket(groupOwnerIP, port)
                 ConnectionValidationString.updateStatus("Socket Connection Successful!")
                 /*TODO start sending files*/
-                val context = GlobalContext.appContext
-                SendFilePackets.sendFilesOverSocket(context, socket)
+                SendFilePackets.sendFilesOverSocket(socket)
                 //socket will be closed in the SendFilePackets
             } catch (e: ConnectException) {
                 ConnectionValidationString.updateStatus("Specific Failure: The IP is reachable, but nothing is listening on that port.")
