@@ -115,7 +115,6 @@ object SendFilePackets {
             } finally {
                 // Ensure socket is closed after transfer is complete
                 socket.close()
-                ConnectionValidationString.updateStatus("Socket closed.")
             }
         }
     }

@@ -144,9 +144,8 @@
 
                             }
                         }else if(valueString == "ServerSocket"){
-                            appContext?.let{ctx->
-                                WifiP2PClient.connectToGroupOwner(ctx)
-                            }
+                            WifiP2PClient.connectToGroupOwner()
+
 
                         }else{
                             showToast("Received Unknown Indication!",true)

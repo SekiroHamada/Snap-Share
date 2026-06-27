@@ -16,6 +16,7 @@ object WifiP2PGenerator {
     private const val OPERATION_DELAY_MS = 1500L
     private const val CREATE_GROUP_DELAY_MS = 2000L
 
+
     @SuppressLint("MissingPermission")
     fun startAsGroupOwner(context: Context, changeWifiCredentials: (String) -> Unit) {
         val appContext = context.applicationContext

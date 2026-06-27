@@ -82,9 +82,7 @@ object ReceiveFilePackets {
             } catch (e: Exception) {
                 ConnectionValidationString.updateStatus("Receive Error: ${e.localizedMessage}")
             } finally {
-                // Ensure socket is closed after reading
                 socket.close()
-                ConnectionValidationString.updateStatus("Socket closed.")
             }
         }
     }
