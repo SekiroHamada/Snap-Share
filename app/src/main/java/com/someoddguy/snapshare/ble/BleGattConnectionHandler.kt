@@ -140,9 +140,9 @@ object BleGattConnectionHandler {
                                 ConnectionValidationString.updateStart(true)
                                 ConnectionValidationString.updateStatus("Connected to Central $deviceAddress")
 
-                                appContext?.let { ctx ->
-                                    WifiP2PGenerator.startAsGroupOwner(ctx,{changeWifiCredential(it)})
-                                }
+
+                                WifiP2PGenerator.startAsGroupOwner({changeWifiCredential(it)})
+
                             },
                             {
                                 showToast("Connection rejected: $deviceAddress", true)
