@@ -64,7 +64,7 @@
                         if (newState == BluetoothProfile.STATE_CONNECTED) {
                             showToast("Connected to $deviceName",true)
                             addConnection(gatt)
-                            gatt.requestMtu(517)
+                            gatt.discoverServices()
 
                         } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                             showToast("Successfully disconnected from $deviceName",true)
@@ -106,12 +106,13 @@
                 override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
                     super.onMtuChanged(gatt, mtu, status)
                     if(status== BluetoothGatt.GATT_SUCCESS){
-                        //showToast("Mtu expanded to $mtu",true)
-                        gatt.discoverServices()
+                        //mtu increased
+                        ConnectionValidationString.updateStatus("MTU increased")
                     }
                 }
 
                 @Deprecated("Deprecated in Java")
+                @SuppressLint("MissingPermission")
                 override fun onCharacteristicChanged(
                     gatt: BluetoothGatt,
                     characteristic: BluetoothGattCharacteristic
@@ -125,10 +126,10 @@
                         if (valueString == "DENIED") {
 
                             showToast("Connection rejected by host. Disconnecting...", true)
-
                             removeConnection(gatt)
-                            @SuppressLint("MissingPermission")
                             gatt.disconnect()
+                        }else if(valueString == "ACCEPTED"){
+                            gatt.requestMtu(517)
                         }
                         // Otherwise, we assume it's the Wi-Fi P2P credentials
                         else if (valueString.contains("|")) {

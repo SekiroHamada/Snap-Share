@@ -12,6 +12,7 @@ import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresPermission
@@ -103,13 +104,31 @@ object BleGattConnectionHandler {
     }
 
     @SuppressLint("MissingPermission")
-    private fun sendIndication(message: String) {
+    private fun sendIndication(message: String,targetDevice: BluetoothDevice? = null) {
         val data = message.toByteArray(Charsets.UTF_8)
-        dataCharacteristic?.value = data
-        connectedDevices.forEach { device ->
-            // true flag signifies an Indication rather than a Notification
-            gattServer?.notifyCharacteristicChanged(device, dataCharacteristic, true)
+        val characteristic = dataCharacteristic ?: return
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            if (targetDevice != null) {
+                gattServer?.notifyCharacteristicChanged(targetDevice, characteristic, true, data)
+            } else {
+                connectedDevices.forEach { dev ->
+                    gattServer?.notifyCharacteristicChanged(dev, characteristic, true, data)
+                }
+            }
+        }else{
+            characteristic.value = data
+            if (targetDevice != null) {
+                @Suppress("DEPRECATION")
+                gattServer?.notifyCharacteristicChanged(targetDevice, characteristic, true)
+            } else {
+                connectedDevices.forEach { dev ->
+                    @Suppress("DEPRECATION")
+                    gattServer?.notifyCharacteristicChanged(dev, characteristic, true)
+                }
+            }
         }
+
+
     }
 
     @SuppressLint("MissingPermission")
@@ -131,36 +150,34 @@ object BleGattConnectionHandler {
             val deviceAddress = device.address
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    Handler(Looper.getMainLooper()).post {
-                        onConnectionPromptRequested?.invoke(
-                            deviceAddress,
-                            {
-                                addDevice(device)
-                                //for the new screen
-                                ConnectionValidationString.updateStart(true)
-                                ConnectionValidationString.updateStatus("Connected to Central $deviceAddress")
-
-
-                                WifiP2PGenerator.startAsGroupOwner({changeWifiCredential(it)})
-
-                            },
-                            {
-                                showToast("Connection rejected: $deviceAddress", true)
-                                pendingRejections.add(deviceAddress)
-                                val data = "DENIED".toByteArray(Charsets.UTF_8)
-                                dataCharacteristic?.value = data
-                                gattServer?.notifyCharacteristicChanged(device, dataCharacteristic, true)
-
-
-                                // if there is a problem in subscribing to indication, remove them after 4s
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    gattServer?.cancelConnection(device)
-                                    pendingRejections.remove(deviceAddress)
-                                }, 4000L)
-
-                            }
-                        )
-                    }
+//                    Handler(Looper.getMainLooper()).post {
+//                        onConnectionPromptRequested?.invoke(
+//                            deviceAddress,
+//                            {
+//                                addDevice(device)
+//                                //for the new screen
+//                                ConnectionValidationString.updateStart(true)
+//                                ConnectionValidationString.updateStatus("Connected to Central $deviceAddress")
+//                                sendIndication("ACCEPTED")
+//
+//                            },
+//                            {
+//                                showToast("Connection rejected: $deviceAddress", true)
+//                                pendingRejections.add(deviceAddress)
+//                                val data = "DENIED".toByteArray(Charsets.UTF_8)
+//                                dataCharacteristic?.value = data
+//                                gattServer?.notifyCharacteristicChanged(device, dataCharacteristic, true)
+//
+//
+//                                // if there is a problem in subscribing to indication, remove them after 4s
+//                                Handler(Looper.getMainLooper()).postDelayed({
+//                                    gattServer?.cancelConnection(device)
+//                                    pendingRejections.remove(deviceAddress)
+//                                }, 4000L)
+//
+//                            }
+//                        )
+//                    }
 
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
@@ -175,7 +192,11 @@ object BleGattConnectionHandler {
         //TODO remove this redundant fun
         override fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
             super.onMtuChanged(device, mtu)
-            //showToast("MTU updated to $mtu for ${device.address}", true)
+            ConnectionValidationString.updateStatus("MTU updated to $mtu for ${device.address}")
+
+            Handler(Looper.getMainLooper()).post {
+                WifiP2PGenerator.startAsGroupOwner { changeWifiCredential(it) }
+            }
 
         }
 
@@ -185,32 +206,35 @@ object BleGattConnectionHandler {
             preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray?
         ) {
             super.onDescriptorWriteRequest(device, requestId, descriptor, preparedWrite, responseNeeded, offset, value)
+
             if (descriptor.uuid == CCCD_UUID) {
                 if (responseNeeded) {
                     gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value)
                 }
-                Handler(Looper.getMainLooper()).postDelayed({
-                    val address = device.address
+                if(value != null && value.contentEquals(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE))
+                    Handler(Looper.getMainLooper()).post {
+                        onConnectionPromptRequested?.invoke(
+                            device.address,
+                            { // --- onKeep Clicked ---
+                                addDevice(device)
+                                ConnectionValidationString.updateStart(true)
+                                ConnectionValidationString.updateStatus("Connected to Central ${device.address}")
 
-                    // 1. Check if they were rejected while they were setting up
-                    if (pendingRejections.contains(address)) {
-                        val data = "DENIED".toByteArray(Charsets.UTF_8)
-                        dataCharacteristic?.value = data
-                        gattServer?.notifyCharacteristicChanged(device, dataCharacteristic, true)
+                                // 100% safe to send now; the client is guaranteed to be listening
+                                sendIndication("ACCEPTED")
+                            },
+                            { // --- onRemove Clicked ---
+                                showToast("Connection rejected: ${device.address}", true)
 
-                        // Disconnect after sending
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            gattServer?.cancelConnection(device)
-                            pendingRejections.remove(address)
-                        }, 500L)
+                                sendIndication("DENIED", device)
+
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    gattServer?.cancelConnection(device)
+                                }, 500L)
+                            }
+                        )
                     }
-                    // 2. Or, check if we already have the Wi-Fi credentials ready for them
-                    else if (WifiCredentials.isNotEmpty()) {
-                        val data = WifiCredentials.toByteArray(Charsets.UTF_8)
-                        dataCharacteristic?.value = data
-                        gattServer?.notifyCharacteristicChanged(device, dataCharacteristic, true)
-                    }
-                }, 250L)
+
             }
         }
 
