@@ -31,6 +31,10 @@
         android:required="true"
         android:name="android.permission.INTERNET"/>
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -42,6 +46,10 @@
         android:theme="@style/Theme.SnapShare"
         android:name=".globalcontext.GlobalContext">
 
+        <service
+            android:name=".services.FileTransferService"
+            android:foregroundServiceType="dataSync"
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"

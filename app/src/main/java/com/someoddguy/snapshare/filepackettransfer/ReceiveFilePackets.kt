@@ -20,6 +20,7 @@ object ReceiveFilePackets {
         val context = GlobalContext.appContext
         withContext(Dispatchers.IO) {
             try {
+                FileTransferProgress.updateProgress(false)
                 ConnectionValidationString.updateStatus("Listening for incoming files...")
 
                 FileTransferProgress.updateIsReceiving(true)

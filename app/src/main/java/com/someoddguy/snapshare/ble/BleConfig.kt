@@ -7,4 +7,5 @@ object BleConfig {
     val APP_SERVICE_UUID: UUID=UUID.fromString("b8e1b517-97c9-464a-b8ff-60647e8cce2a")
     val DATA_CHARACTERISTIC_UUID: UUID=UUID.fromString("b8e1b518-97c9-464a-b8ff-60647e8cce2a")
     val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+    val PING_SERVICE_UUID: UUID = UUID.fromString("c9f2c618-1234-1234-1234-60647e8cce2b")
 }

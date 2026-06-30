@@ -1,6 +1,8 @@
 package com.someoddguy.snapshare.wifip2p
 
 import com.someoddguy.snapshare.filepackettransfer.ReceiveFilePackets
+import com.someoddguy.snapshare.globalcontext.GlobalContext
+import com.someoddguy.snapshare.services.FileTransferService
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +19,8 @@ object ServerSocketGenerator {
                 BleGattConnectionHandler.changeWifiCredential("ServerSocket")
                 val client = serverSocket.accept()
                 ConnectionValidationString.updateStatus("Client connected: ${client.inetAddress}")
+
+                FileTransferService.startService(GlobalContext.appContext)
 
                 ReceiveFilePackets.receiveFilesOverSocket(client)
                 //socket will be closed in the ReceiveFilePackets

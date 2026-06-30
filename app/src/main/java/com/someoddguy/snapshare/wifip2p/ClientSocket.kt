@@ -2,6 +2,8 @@ package com.someoddguy.snapshare.wifip2p
 
 import android.net.Network
 import com.someoddguy.snapshare.filepackettransfer.SendFilePackets
+import com.someoddguy.snapshare.globalcontext.GlobalContext
+import com.someoddguy.snapshare.services.FileTransferService
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.utils.CustomException
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +29,8 @@ object ClientSocket {
                 }
                 val socket = network.socketFactory.createSocket(groupOwnerIP, port)
                 ConnectionValidationString.updateStatus("Socket Connection Successful!")
+
+                FileTransferService.startService(GlobalContext.appContext)
                 /*TODO start sending files*/
                 SendFilePackets.sendFilesOverSocket(socket)
                 //socket will be closed in the SendFilePackets
