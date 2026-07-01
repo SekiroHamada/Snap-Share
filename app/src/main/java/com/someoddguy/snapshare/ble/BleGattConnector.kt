@@ -79,6 +79,8 @@
                         gatt.close()
                     }
                 }
+
+
                 //check when services are discovered
                 @SuppressLint("MissingPermission")
                 override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
@@ -102,6 +104,8 @@
                     }
 
                 }
+
+
                 @SuppressLint("MissingPermission")
                 override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
                     super.onMtuChanged(gatt, mtu, status)
@@ -130,24 +134,20 @@
                             gatt.disconnect()
                         }else if(valueString == "ACCEPTED"){
                             gatt.requestMtu(517)
+                            ConnectionValidationString.updateStart(true)
+                            ConnectionValidationString.updateStatus("Connected to Central")
                         }
                         // Otherwise, we assume it's the Wi-Fi P2P credentials
                         else if (valueString.contains("|")) {
-                            ConnectionValidationString.updateStart(true)
-                            ConnectionValidationString.updateStatus("Connected to Central")
-
                             val credentials = valueString.split("|")
                             if (credentials.size == 2) {
                                 val ssid = credentials[0]
                                 val pass = credentials[1]
                                 ConnectionValidationString.updateStatus("Credentials received! Connecting to Wi-Fi...")
                                 WifiP2PClient.saveWifiCredentials( ssid, pass)
-
                             }
                         }else if(valueString == "ServerSocket"){
                             WifiP2PClient.connectToGroupOwner()
-
-
                         }else{
                             showToast("Received Unknown Indication!",true)
                         }
