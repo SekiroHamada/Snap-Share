@@ -1,4 +1,4 @@
-package com.someoddguy.snapshare.ui.filecard
+package com.someoddguy.snapshare.ui.sendfilescreen.filecard
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
@@ -31,7 +31,6 @@ import com.someoddguy.snapshare.R
 
 
 @Composable
-@Preview()
 fun FileCard(
     uri: Uri,
     onRemoveClick: (Uri) -> Unit

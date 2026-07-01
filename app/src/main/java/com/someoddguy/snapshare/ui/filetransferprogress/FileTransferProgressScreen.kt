@@ -70,7 +70,7 @@ fun FileTransferProgressScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
 
-            Text("$str1 ${uiState.fileName} : ${uiState.fileSize}")
+            Text("$str1 ${uiState.fileName} : ${uiState.fileSize/1024} MB")
             Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
                 progress = {uiState.fileSizeReceived.toFloat()/uiState.fileSize.toFloat()},

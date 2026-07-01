@@ -27,12 +27,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.navigation.Routes
-import com.someoddguy.snapshare.ui.filecard.FileCard
+import com.someoddguy.snapshare.ui.sendfilescreen.filecard.FileCard
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-@Preview
 fun SendFileScreen(
     navHostController: NavHostController,
     viewModel: SendFileViewModel = viewModel() // Instantiates or retrieves the ViewModel

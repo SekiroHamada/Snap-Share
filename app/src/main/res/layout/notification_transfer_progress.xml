@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/textOverallProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Overall: 0/0 Files"
+        android:textAppearance="@style/TextAppearance.Compat.Notification.Title"
+        android:textSize="14sp" />
+
+    <ProgressBar
+        android:id="@+id/progressOverall"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100" />
+
+    <TextView
+        android:id="@+id/textCurrentFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current File"
+        android:textAppearance="@style/TextAppearance.Compat.Notification.Line2"
+        android:textSize="12sp"
+        android:layout_marginTop="4dp" />
+
+    <ProgressBar
+        android:id="@+id/progressCurrent"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100" />
+
+</LinearLayout>

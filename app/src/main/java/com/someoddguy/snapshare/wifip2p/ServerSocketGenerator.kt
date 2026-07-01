@@ -17,10 +17,12 @@ object ServerSocketGenerator {
             ServerSocket(port).use { serverSocket ->
                 ConnectionValidationString.updateStatus("Server waiting on port $port...")
                 BleGattConnectionHandler.changeWifiCredential("ServerSocket")
+
+
                 val client = serverSocket.accept()
                 ConnectionValidationString.updateStatus("Client connected: ${client.inetAddress}")
 
-                FileTransferService.startService(GlobalContext.appContext)
+
 
                 ReceiveFilePackets.receiveFilesOverSocket(client)
                 //socket will be closed in the ReceiveFilePackets

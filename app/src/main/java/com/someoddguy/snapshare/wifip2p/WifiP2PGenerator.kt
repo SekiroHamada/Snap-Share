@@ -11,6 +11,7 @@ import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidati
 import com.someoddguy.snapshare.utils.showToast
 import android.os.Handler
 import com.someoddguy.snapshare.globalcontext.GlobalContext
+import com.someoddguy.snapshare.services.FileTransferService
 
 object WifiP2PGenerator {
 
@@ -100,6 +101,11 @@ object WifiP2PGenerator {
         retries: Int = 3
     ) {
         ConnectionValidationString.updateStatus("Trying to create group")
+
+
+        //for notification as well as foreground process
+        FileTransferService.startService(GlobalContext.appContext)
+
         manager?.createGroup(channel, object : WifiP2pManager.ActionListener {
             @SuppressLint("MissingPermission")
             override fun onSuccess() {

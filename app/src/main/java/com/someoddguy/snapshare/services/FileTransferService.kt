@@ -1,5 +1,6 @@
 package com.someoddguy.snapshare.services
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -8,7 +9,9 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,17 +44,17 @@ class FileTransferService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createNotificationChannel()
-        val notification = buildNotification(title="Preparing transfer...", progress = 0,max = 100)
+        val initialNotification = buildBasicNotification(title="Preparing transfer...", "Connecting")
 
         // Android 14+ strict requirement: explicitly state the service type in code
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(
                 NOTIFICATION_ID,
-                notification,
+                initialNotification,
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             )
         } else {
-            startForeground(NOTIFICATION_ID, notification)
+            startForeground(NOTIFICATION_ID, initialNotification)
         }
 
         observeTransferProgress()
@@ -60,6 +63,8 @@ class FileTransferService : Service() {
 
     private fun observeTransferProgress() {
         serviceScope.launch {
+            var lastUpdateTime =0L
+
             combine<Any, TransferState>(
                 FileTransferProgress.fileName,
                 FileTransferProgress.fileSize,
@@ -81,6 +86,14 @@ class FileTransferService : Service() {
             }.collect { state ->
 
                 if (state.isDone) {
+                    // Show a completion notification that sticks around after the service dies
+                    val actionText = if (state.isReceiving) "Received" else "Sent"
+                    val doneNotification = buildBasicNotification("Transfer Complete", "All files $actionText successfully.")
+                        .apply { flags = Notification.FLAG_AUTO_CANCEL } // Allows user to swipe it away
+
+                    notificationManager.notify(NOTIFICATION_ID + 1, doneNotification) // Use a different ID so it doesn't get cleared
+
+
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         stopForeground(STOP_FOREGROUND_REMOVE)
                     } else {
@@ -93,32 +106,57 @@ class FileTransferService : Service() {
                     return@collect
                 }
 
-                val actionText = if (state.isReceiving) "Receiving" else "Sending"
-                val progressMax = 100
+                // Calculate both progress values (0 to 100)
                 val currentProgress = if (state.size > 0) ((state.received.toFloat() / state.size) * 100).toInt() else 0
+                val overallProgress = if (state.total > 0) ((state.done.toFloat() / state.total) * 100).toInt() else 0
+                val currentTime = System.currentTimeMillis()
 
-                val title = "$actionText file ${state.done + 1} of ${state.total}"
-                val contentText = "${state.name} ($currentProgress%)"
-
-                // Update the ongoing notification
+                if (currentTime - lastUpdateTime < 500 && currentProgress < 100) {
+                    return@collect // Silently ignore the update so we don't spam the OS
+                }
+                //otherwise send the notification
+                lastUpdateTime = currentTime
+                // Update the ongoing notification with the custom dual-bar layout
                 notificationManager.notify(
                     NOTIFICATION_ID,
-                    buildNotification(title, contentText, currentProgress, progressMax)
+                    buildCustomNotification(state, overallProgress, currentProgress)
                 )
             }
         }
     }
 
-    private fun buildNotification(title: String, contentText: String = "", progress: Int, max: Int = 100) =
-        NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(title)
-            .setContentText(contentText)
-            .setSmallIcon(android.R.drawable.stat_sys_upload) // Replace with your own icon (e.g., R.drawable.ic_launcher_foreground)
-            .setProgress(max, progress, false)
-            .setOngoing(true)
-            .setOnlyAlertOnce(true) // Prevents the phone from buzzing on every single byte transferred
-            .build()
+    private fun buildCustomNotification(state: TransferState, overallProgress: Int, currentProgress: Int): Notification {
+        val actionText = if (state.isReceiving) "Receiving" else "Sending"
 
+        // Inflate the XML layout we created
+        val remoteViews = RemoteViews(packageName, R.layout.notification_transfer_progress)
+
+        // Update the text fields
+        remoteViews.setTextViewText(R.id.textOverallProgress, "$actionText: ${state.done}/${state.total} Files")
+        remoteViews.setTextViewText(R.id.textCurrentFile, state.name)
+
+        // Update both progress bars
+        remoteViews.setProgressBar(R.id.progressOverall, 100, overallProgress, false)
+        remoteViews.setProgressBar(R.id.progressCurrent, 100, currentProgress, false)
+
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.stat_sys_upload) // Replace if you have a custom icon
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle()) // Tells Android to use your XML
+            .setCustomContentView(remoteViews)
+            .setCustomBigContentView(remoteViews)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .build()
+    }
+    private fun buildBasicNotification(title: String, text: String): Notification {
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setSmallIcon(android.R.drawable.stat_sys_upload)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .build()
+    }
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(

@@ -7,6 +7,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.wifi.WifiNetworkSpecifier
 import com.someoddguy.snapshare.globalcontext.GlobalContext
+import com.someoddguy.snapshare.services.FileTransferService
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 
 object WifiP2PClient {
@@ -43,6 +44,9 @@ object WifiP2PClient {
             .build()
 
         ConnectionValidationString.updateStatus("Joining Wi-Fi Network : $SSID")
+
+        //for notification as well as foreground process
+        FileTransferService.startService(GlobalContext.appContext)
 
         // Request the connection
         networkCallback = object : ConnectivityManager.NetworkCallback() {

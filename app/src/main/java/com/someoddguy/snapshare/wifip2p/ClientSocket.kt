@@ -27,10 +27,10 @@ object ClientSocket {
                 if(tries == 0){
                     throw CustomException("Retry Failed!")
                 }
+
+
                 val socket = network.socketFactory.createSocket(groupOwnerIP, port)
                 ConnectionValidationString.updateStatus("Socket Connection Successful!")
-
-                FileTransferService.startService(GlobalContext.appContext)
                 /*TODO start sending files*/
                 SendFilePackets.sendFilesOverSocket(socket)
                 //socket will be closed in the SendFilePackets
