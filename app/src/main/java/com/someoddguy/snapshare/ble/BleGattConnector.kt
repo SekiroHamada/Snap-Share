@@ -1,5 +1,4 @@
 
-
     import android.annotation.SuppressLint
     import android.bluetooth.BluetoothDevice
     import android.bluetooth.BluetoothGatt
@@ -39,15 +38,6 @@
             }
 
         }
-
-
-        fun clearAll() {
-            // Remember to actually disconnect them before clearing!
-            @SuppressLint("MissingPermission")
-            activeConnections.forEach { it.disconnect() }
-            activeConnections.clear()
-        }
-
 
 
         fun startConnection(context: Context,result: ScanResult){
@@ -162,5 +152,12 @@
                 gattCallback,
                 BluetoothDevice.TRANSPORT_LE
             )
+        }
+
+        fun clearAll() {
+            // Remember to actually disconnect them before clearing!
+            @SuppressLint("MissingPermission")
+            activeConnections.forEach { it.disconnect() }
+            activeConnections.clear()
         }
     }

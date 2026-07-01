@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Surface
@@ -20,7 +21,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
+import com.someoddguy.snapshare.navigation.Routes
+import com.someoddguy.snapshare.services.resetApp
+import com.someoddguy.snapshare.wifip2p.WifiP2PClient
+import com.someoddguy.snapshare.wifip2p.WifiP2PGenerator
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun FileTransferProgressScreen(
@@ -29,6 +41,20 @@ fun FileTransferProgressScreen(
 ){
     // Collect the single state object
     val uiState by viewModel.uiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+    var isButtonClicked by remember { mutableStateOf(false) }
+
+//    LaunchedEffect(uiState.isDone) {
+//        if(uiState.isDone){
+//            if(uiState.isReceiving){
+//                WifiP2PGenerator.killAllWifiGeneratorConnections()
+//                resetApp()
+//            }else{
+//                WifiP2PClient.killAllWifiClientConnections()
+//                resetApp()
+//            }
+//        }
+//    }
 
     var str1=""
     var str2=""
@@ -82,6 +108,39 @@ fun FileTransferProgressScreen(
                 trackColor = ProgressIndicatorDefaults.linearTrackColor,
                 strokeCap = ProgressIndicatorDefaults.LinearStrokeCap
             )
+
+            if(uiState.isDone){
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    enabled = !isButtonClicked,
+                    onClick = {
+                        isButtonClicked = true
+                        coroutineScope.launch{
+                            delay(5000L)
+
+                            if(uiState.isReceiving){
+                                WifiP2PGenerator.killAllWifiGeneratorConnections()
+                                resetApp()
+                            }else{
+                                WifiP2PClient.killAllWifiClientConnections()
+                                resetApp()
+                            }
+
+                            delay(1000L)
+                            navHostController.navigate(Routes.HomeScreen) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    }
+                ) {
+                    if(isButtonClicked){
+                        Text("Processing...")
+                    }else{
+                        Text("DONE")
+                    }
+
+                }
+            }
         }
     }
     // Example of how you use it going forward:

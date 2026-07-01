@@ -8,6 +8,7 @@ import android.bluetooth.le.AdvertiseSettings
 import android.content.Context
 import android.os.ParcelUuid
 import com.someoddguy.snapshare.ble.BleConfig
+import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.utils.showToast
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +23,8 @@ object ReceiverAdvertiser {
     private var advertiseCallback: AdvertiseCallback? = null
 
     @SuppressLint("MissingPermission")
-    fun startAdvertising(context: Context) {
+    fun startAdvertising() {
+        val context = GlobalContext.appContext
         val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val advertiser = bluetoothManager.adapter?.bluetoothLeAdvertiser
 
@@ -67,7 +69,8 @@ object ReceiverAdvertiser {
     }
 
     @SuppressLint("MissingPermission")
-    fun stopAdvertising(context: Context) {
+    fun stopAdvertising() {
+        val context = GlobalContext.appContext
         val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val advertiser = bluetoothManager.adapter?.bluetoothLeAdvertiser
 

@@ -17,8 +17,13 @@ object FileTransferProgress {
     //tells how many files got transferred
     private val _filesDone = MutableStateFlow(0)
     val filesDone: StateFlow<Int> = _filesDone.asStateFlow()
-    fun updateFilesDone(){
-        _filesDone.value += 1
+    fun updateFilesDone(no: Int = -1){
+        if(no == -1){
+            _filesDone.value += 1
+        }else{
+            _filesDone.value = no
+        }
+
     }
     //tells if initiate by sender or receiver
     private val _isReceiving = MutableStateFlow(false)
@@ -52,5 +57,17 @@ object FileTransferProgress {
     val isDone: StateFlow<Boolean> = _isDone.asStateFlow()
     fun updateProgress(bool: Boolean){
         _isDone.value = bool
+    }
+
+
+
+    fun resetProgress(){
+        updateTotalFiles(0)
+        updateFilesDone(0)
+        updateIsReceiving(false)
+        updateFileName("")
+        updateFileSize(0L)
+        updateFileSizeReceived(0L)
+        updateProgress(false)
     }
 }

@@ -65,12 +65,12 @@ class ReceiverAdvertiserViewModel : ViewModel() {
     /*TODO end*/
 
     // Proxy methods so the UI can still call the ViewModel to start/stop
-    fun startAdvertising(context: Context) {
-        ReceiverAdvertiser.startAdvertising(context)
+    fun startAdvertising() {
+        ReceiverAdvertiser.startAdvertising()
     }
 
-    fun stopAdvertising(context: Context) {
-        ReceiverAdvertiser.stopAdvertising(context)
+    fun stopAdvertising() {
+        ReceiverAdvertiser.stopAdvertising()
     }
 
     //TODO added status check for Connection validation

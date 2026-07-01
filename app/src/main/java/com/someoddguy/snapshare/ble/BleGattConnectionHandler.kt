@@ -1,4 +1,3 @@
-//package com.someoddguy.snapshare.ble
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -26,7 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 object BleGattConnectionHandler {
 
     val connectedDevices: MutableList<BluetoothDevice> = CopyOnWriteArrayList()
-    val pendingRejections: MutableList<String> = CopyOnWriteArrayList()
+
     // The server instance listening for connections
     private var gattServer: BluetoothGattServer? = null
     private var appContext: Context? = null
@@ -131,54 +130,13 @@ object BleGattConnectionHandler {
 
     }
 
-    @SuppressLint("MissingPermission")
-    fun stopServer() {
-        gattServer?.let { server ->
-            // Disconnect all tracked devices before closing
-            connectedDevices.forEach { device ->
-                server.cancelConnection(device)
-            }
-            server.close()
-        }
-        gattServer = null
-        connectedDevices.clear()
-    }
-
     private val gattServerCallback = object : BluetoothGattServerCallback() {
         @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
             val deviceAddress = device.address
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-//                    Handler(Looper.getMainLooper()).post {
-//                        onConnectionPromptRequested?.invoke(
-//                            deviceAddress,
-//                            {
-//                                addDevice(device)
-//                                //for the new screen
-//                                ConnectionValidationString.updateStart(true)
-//                                ConnectionValidationString.updateStatus("Connected to Central $deviceAddress")
-//                                sendIndication("ACCEPTED")
-//
-//                            },
-//                            {
-//                                showToast("Connection rejected: $deviceAddress", true)
-//                                pendingRejections.add(deviceAddress)
-//                                val data = "DENIED".toByteArray(Charsets.UTF_8)
-//                                dataCharacteristic?.value = data
-//                                gattServer?.notifyCharacteristicChanged(device, dataCharacteristic, true)
-//
-//
-//                                // if there is a problem in subscribing to indication, remove them after 4s
-//                                Handler(Looper.getMainLooper()).postDelayed({
-//                                    gattServer?.cancelConnection(device)
-//                                    pendingRejections.remove(deviceAddress)
-//                                }, 4000L)
-//
-//                            }
-//                        )
-//                    }
-
+                    //do nothing
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     showToast("Disconnected from Central: $deviceAddress", true)
@@ -238,5 +196,18 @@ object BleGattConnectionHandler {
             }
         }
 
+    }
+
+    @SuppressLint("MissingPermission")
+    fun stopServer() {
+        gattServer?.let { server ->
+            // Disconnect all tracked devices before closing
+            connectedDevices.forEach { device ->
+                server.cancelConnection(device)
+            }
+            server.close()
+        }
+        gattServer = null
+        connectedDevices.clear()
     }
 }

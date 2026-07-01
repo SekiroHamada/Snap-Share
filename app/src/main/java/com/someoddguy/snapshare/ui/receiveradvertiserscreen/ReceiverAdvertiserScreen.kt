@@ -9,7 +9,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -23,7 +22,6 @@ fun ReceiveFileScreen(
     navHostController: NavHostController,
     viewModel: ReceiverAdvertiserViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     // Observe the state from the ViewModel
     val isAdvertising by viewModel.isAdvertising.collectAsState()
     //TODO added status check to go to the next page
@@ -84,10 +82,10 @@ fun ReceiveFileScreen(
                 onClick = {
                     if (!isAdvertising) {
                         // Permissions are now handled at Splash Screen
-                        viewModel.startAdvertising(context)
+                        viewModel.startAdvertising()
                     } else {
                         // Stop advertising
-                        viewModel.stopAdvertising(context)
+                        viewModel.stopAdvertising()
                     }
                 },
                 modifier = Modifier.padding(16.dp)

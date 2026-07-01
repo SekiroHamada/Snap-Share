@@ -4,8 +4,10 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.services.FileTransferService
+import com.someoddguy.snapshare.services.resetApp
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
+import com.someoddguy.snapshare.wifip2p.WifiP2PClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -62,7 +64,7 @@ object SendFilePackets {
                 }
 
                 ConnectionValidationString.updateStatus("Preparing to send ${uris.size} file(s)...")
-                ConnectionValidationString.updateInitiateTransfer()
+                ConnectionValidationString.updateInitiateTransfer(true)
 
                 val outputStream = DataOutputStream(socket.getOutputStream())
 
@@ -119,6 +121,7 @@ object SendFilePackets {
             } finally {
                 // Ensure socket is closed after transfer is complete
                 socket.close()
+
             }
         }
     }

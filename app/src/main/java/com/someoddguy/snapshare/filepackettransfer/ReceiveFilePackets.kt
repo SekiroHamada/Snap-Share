@@ -7,8 +7,10 @@ import android.os.Environment
 import android.provider.MediaStore
 import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.navigation.Routes
+import com.someoddguy.snapshare.services.resetApp
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
+import com.someoddguy.snapshare.wifip2p.WifiP2PGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.DataInputStream
@@ -24,7 +26,7 @@ object ReceiveFilePackets {
                 ConnectionValidationString.updateStatus("Listening for incoming files...")
 
                 FileTransferProgress.updateIsReceiving(true)
-                ConnectionValidationString.updateInitiateTransfer()
+                ConnectionValidationString.updateInitiateTransfer(true)
 
                 val inputStream = DataInputStream(socket.getInputStream())
 
@@ -86,6 +88,8 @@ object ReceiveFilePackets {
                 ConnectionValidationString.updateStatus("Receive Error: ${e.localizedMessage}")
             } finally {
                 socket.close()
+
+
             }
         }
     }
