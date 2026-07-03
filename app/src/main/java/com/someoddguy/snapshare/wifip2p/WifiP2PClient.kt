@@ -53,13 +53,10 @@ object WifiP2PClient {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
                 ConnectionValidationString.updateStatus("Successfully connected to Group Owner!")
-
                 connectivityManager.bindProcessToNetwork(network)
                 ConnectionValidationString.updateStatus("Starting Socket with Network : $SSID")
-
                 ClientSocket.startSocketClient(network, GO_IP)
             }
-
             override fun onUnavailable() {
                 super.onUnavailable()
                 ConnectionValidationString.updateStatus("Failed to connect to the network.")
