@@ -12,6 +12,7 @@ import com.someoddguy.snapshare.utils.showToast
 import android.os.Handler
 import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.services.FileTransferService
+import com.someoddguy.snapshare.utils.CheckHotspot
 
 object WifiP2PGenerator {
 
@@ -100,9 +101,20 @@ object WifiP2PGenerator {
         changeWifiCredentials: (String) -> Unit,
         retries: Int = 3
     ) {
+        // --- START OF HOTSPOT CHECK ---
+        if (CheckHotspot.isHotspotOn()) {
+            ConnectionValidationString.updateStatus("Waiting for Mobile Hotspot to be turned off...")
+            showToast("Please turn off your Mobile Hotspot to connect.", true)
+
+            // Ping them again by re-running this method after a delay
+            delayThen(2500L) { // 2.5 seconds gives the user time to pull down the shade
+                createNewGroup(changeWifiCredentials, retries)
+            }
+            return // Halt this execution; the check will loop via the delay handle
+        }
+
+
         ConnectionValidationString.updateStatus("Trying to create group")
-
-
         //for notification as well as foreground process
         FileTransferService.startService(GlobalContext.appContext)
 

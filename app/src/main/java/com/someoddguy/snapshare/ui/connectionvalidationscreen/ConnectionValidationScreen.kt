@@ -21,19 +21,20 @@ import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.navigation.Routes
 
-
 @Composable
 fun ConnectionValidationScreen(
     navHostController: NavHostController,
-    viewModel: ConnectionValidationViewModel= viewModel()
+    viewModel: ConnectionValidationViewModel = viewModel()
 ){
-    val statusText by viewModel.myViewModelString.collectAsState()
-    val initiateTransfer by viewModel.initiateTransfer.collectAsState()
-    LaunchedEffect(initiateTransfer) {
-        if (initiateTransfer) {
+    // Collect the single state object
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.initiateTransfer) {
+        if (uiState.initiateTransfer) {
             navHostController.navigate(Routes.FileTransferProgressScreen) {}
         }
     }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = colorResource(R.color.black),
@@ -51,8 +52,7 @@ fun ConnectionValidationScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // The text that automatically updates when the ViewModel changes
-            Text(text = statusText)
+            Text(text = uiState.statusString)
         }
     }
-
 }

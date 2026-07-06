@@ -2,28 +2,35 @@ package com.someoddguy.snapshare.ui.connectionvalidationscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+
+data class ValidationUiState(
+    val start: Boolean = false,
+    val statusString: String = "Waiting...",
+    val initiateTransfer: Boolean = false,
+    val cancel: Boolean = false
+)
 
 class ConnectionValidationViewModel: ViewModel() {
-    private val _myViewModelString = MutableStateFlow("Waiting...")
-    val myViewModelString : StateFlow<String> = _myViewModelString.asStateFlow()
 
-    private val _initiateTransfer = MutableStateFlow(false)
-    val initiateTransfer: StateFlow<Boolean> = _initiateTransfer.asStateFlow()
-    init{
-        viewModelScope.launch {
-            ConnectionValidationString.statusString.collect{newString ->
-                _myViewModelString.value = newString
-            }
-        }
-        viewModelScope.launch {
-            ConnectionValidationString.initiateTransfer.collect{initiate ->
-                _initiateTransfer.value = initiate
-            }
-        }
-    }
-
+    val uiState: StateFlow<ValidationUiState> = combine<Any, ValidationUiState>(
+        ConnectionValidationString.start,
+        ConnectionValidationString.statusString,
+        ConnectionValidationString.initiateTransfer,
+        ConnectionValidationString.cancel
+    ) { args ->
+        ValidationUiState(
+            start = args[0] as Boolean,
+           statusString = (args[1] as String).ifEmpty { "Waiting..." },
+            initiateTransfer = args[2] as Boolean,
+            cancel = args[3] as Boolean
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ValidationUiState()
+    )
 }
