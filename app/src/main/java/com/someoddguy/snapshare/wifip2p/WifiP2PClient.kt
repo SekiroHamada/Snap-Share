@@ -6,6 +6,8 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.wifi.WifiNetworkSpecifier
+import android.os.Handler
+import android.os.Looper
 import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.services.FileTransferService
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
@@ -16,6 +18,7 @@ object WifiP2PClient {
     var PASS : String = ""
     val GO_IP : String = "192.168.49.1"
 
+    private const val OPERATION_DELAY_MS = 1500L
 
     // Hold the callback reference to unregister it later
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
@@ -28,7 +31,7 @@ object WifiP2PClient {
         SSID = ssid
         PASS = pass
     }
-    fun connectToGroupOwner() {
+    fun connectToGroupOwner(retries: Int = 3) {
 
         // 1. Specify the network credentials received via BLE
         val specifier = WifiNetworkSpecifier.Builder()
@@ -59,7 +62,16 @@ object WifiP2PClient {
             }
             override fun onUnavailable() {
                 super.onUnavailable()
-                ConnectionValidationString.updateStatus("Failed to connect to the network.")
+                if(retries>0){
+                    delayThen{
+                        connectToGroupOwner(retries - 1)
+                    }
+                }else{
+                    ConnectionValidationString.updateStatus("Failed to connect to the network.")
+                    killAllWifiClientConnections()
+                    ConnectionValidationString.updateCancelStatus(true)
+                }
+
             }
         }
         networkCallback?.let {
@@ -67,6 +79,10 @@ object WifiP2PClient {
         }
     }
 
+
+    private fun delayThen(ms: Long = OPERATION_DELAY_MS, action: () -> Unit) {
+        Handler(Looper.getMainLooper()).postDelayed(action, ms)
+    }
 
     fun killAllWifiClientConnections(){
         try{

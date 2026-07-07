@@ -21,7 +21,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
 import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -29,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.services.resetApp
+import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.wifip2p.WifiP2PClient
 import com.someoddguy.snapshare.wifip2p.WifiP2PGenerator
 import kotlinx.coroutines.delay
@@ -44,17 +44,6 @@ fun FileTransferProgressScreen(
     val coroutineScope = rememberCoroutineScope()
     var isButtonClicked by remember { mutableStateOf(false) }
 
-//    LaunchedEffect(uiState.isDone) {
-//        if(uiState.isDone){
-//            if(uiState.isReceiving){
-//                WifiP2PGenerator.killAllWifiGeneratorConnections()
-//                resetApp()
-//            }else{
-//                WifiP2PClient.killAllWifiClientConnections()
-//                resetApp()
-//            }
-//        }
-//    }
 
     var str1=""
     var str2=""
@@ -116,10 +105,11 @@ fun FileTransferProgressScreen(
                     onClick = {
                         isButtonClicked = true
                         coroutineScope.launch{
-                            delay(5000L)
-
+                            delay(3000L)
+                            ConnectionValidationString.resetValidation()
                             if(uiState.isReceiving){
                                 WifiP2PGenerator.killAllWifiGeneratorConnections()
+
                                 resetApp()
                             }else{
                                 WifiP2PClient.killAllWifiClientConnections()

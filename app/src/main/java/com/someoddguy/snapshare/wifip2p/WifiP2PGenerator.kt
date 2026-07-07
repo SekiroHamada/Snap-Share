@@ -153,13 +153,15 @@ object WifiP2PGenerator {
                     }
                 } else {
                     ConnectionValidationString.updateStatus("Failed to create group. Reason: $reason")
+                    killAllWifiGeneratorConnections()
+                    ConnectionValidationString.updateCancelStatus(true)
                 }
             }
         })
     }
 
     private fun delayThen(ms: Long = OPERATION_DELAY_MS, action: () -> Unit) {
-        android.os.Handler(Looper.getMainLooper()).postDelayed(action, ms)
+        Handler(Looper.getMainLooper()).postDelayed(action, ms)
     }
 
 

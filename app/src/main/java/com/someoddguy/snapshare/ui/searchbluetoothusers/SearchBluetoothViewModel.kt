@@ -34,6 +34,7 @@ class SearchBluetoothViewModel(application: Application) : AndroidViewModel(appl
             stopBleScan()
         }
         val context = getApplication<Application>()
+        SearchBluetoothUsers.clearResults()
         BleGattConnector.startConnection(context, result)
     }
 
