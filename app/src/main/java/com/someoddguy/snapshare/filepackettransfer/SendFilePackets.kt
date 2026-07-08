@@ -103,7 +103,7 @@ object SendFilePackets {
                             //file size sent
                             bytesSent += bytesRead
                             val currentTime = System.currentTimeMillis()
-                            if(currentTime - lastProgressUpdateTime > 100 ){
+                            if(currentTime - lastProgressUpdateTime > 50 ){
                                 FileTransferProgress.updateFileSizeReceived(bytesSent)
                                 lastProgressUpdateTime = currentTime
                             }

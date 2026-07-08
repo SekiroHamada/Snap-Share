@@ -72,7 +72,7 @@ object ReceiveFilePackets {
                                 outputStream.write(buffer, 0, bytesRead)
                                 totalRead += bytesRead
                                 val currentTime = System.currentTimeMillis()
-                                if(currentTime - lastProgressUpdateTime > 100 ){
+                                if(currentTime - lastProgressUpdateTime > 50 ){
                                     FileTransferProgress.updateFileSizeReceived(totalRead)
                                     lastProgressUpdateTime = currentTime
                                 }
