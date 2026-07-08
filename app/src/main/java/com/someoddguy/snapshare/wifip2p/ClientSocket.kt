@@ -31,6 +31,9 @@ object ClientSocket {
 
                 val socket = network.socketFactory.createSocket(groupOwnerIP, port)
                 ConnectionValidationString.updateStatus("Socket Connection Successful!")
+                socket.tcpNoDelay = true
+                socket.receiveBufferSize =1024*1024
+                socket.sendBufferSize = 1024*1024
                 /*TODO start sending files*/
                 SendFilePackets.sendFilesOverSocket(socket)
                 //socket will be closed in the SendFilePackets

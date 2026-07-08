@@ -3,11 +3,8 @@ package com.someoddguy.snapshare.filepackettransfer
 import android.net.Uri
 import android.provider.OpenableColumns
 import com.someoddguy.snapshare.globalcontext.GlobalContext
-import com.someoddguy.snapshare.services.FileTransferService
-import com.someoddguy.snapshare.services.resetApp
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
-import com.someoddguy.snapshare.wifip2p.WifiP2PClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -50,7 +47,7 @@ object SendFilePackets {
     }
 
 
-
+    var lastProgressUpdateTime = System.currentTimeMillis()
     suspend fun sendFilesOverSocket(socket: Socket) {
         val context = GlobalContext.appContext
         withContext(Dispatchers.IO) {
@@ -98,15 +95,18 @@ object SendFilePackets {
                     FileTransferProgress.updateFileSizeReceived(0L)
                     // Stream the file bytes
                     context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                        val buffer = ByteArray(8192) // 8KB chunks
+                        val buffer = ByteArray(262144) // 8KB chunks
                         var bytesRead: Int
 
                         while (inputStream.read(buffer).also { bytesRead = it } != -1) {
                             outputStream.write(buffer, 0, bytesRead)
                             //file size sent
                             bytesSent += bytesRead
-                            //sent it to the object
-                            FileTransferProgress.updateFileSizeReceived(bytesSent)
+                            val currentTime = System.currentTimeMillis()
+                            if(currentTime - lastProgressUpdateTime > 100 ){
+                                FileTransferProgress.updateFileSizeReceived(bytesSent)
+                                lastProgressUpdateTime = currentTime
+                            }
                         }
                         outputStream.flush()
                     }

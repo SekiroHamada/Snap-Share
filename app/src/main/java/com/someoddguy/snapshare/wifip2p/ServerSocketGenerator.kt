@@ -21,9 +21,9 @@ object ServerSocketGenerator {
 
                 val client = serverSocket.accept()
                 ConnectionValidationString.updateStatus("Client connected: ${client.inetAddress}")
-
-
-
+                client.tcpNoDelay = true
+                client.receiveBufferSize = 1024*1024
+                client.sendBufferSize = 1024*1024
                 ReceiveFilePackets.receiveFilesOverSocket(client)
                 //socket will be closed in the ReceiveFilePackets
 

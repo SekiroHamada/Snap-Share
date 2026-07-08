@@ -17,7 +17,7 @@ import java.io.DataInputStream
 import java.net.Socket
 
 object ReceiveFilePackets {
-
+    var lastProgressUpdateTime = System.currentTimeMillis()
     suspend fun receiveFilesOverSocket(socket: Socket) {
         val context = GlobalContext.appContext
         withContext(Dispatchers.IO) {
@@ -56,7 +56,7 @@ object ReceiveFilePackets {
 
                     if (uri != null) {
                         resolver.openOutputStream(uri)?.use { outputStream ->
-                            val buffer = ByteArray(8192) // 8KB chunks
+                            val buffer = ByteArray(262144) // 8KB chunks
                             var totalRead = 0L
                             // send it to the object
                             FileTransferProgress.updateFileSizeReceived(0L)
@@ -71,7 +71,11 @@ object ReceiveFilePackets {
 
                                 outputStream.write(buffer, 0, bytesRead)
                                 totalRead += bytesRead
-                                FileTransferProgress.updateFileSizeReceived(totalRead)
+                                val currentTime = System.currentTimeMillis()
+                                if(currentTime - lastProgressUpdateTime > 100 ){
+                                    FileTransferProgress.updateFileSizeReceived(totalRead)
+                                    lastProgressUpdateTime = currentTime
+                                }
                             }
                             outputStream.flush()
                         }
