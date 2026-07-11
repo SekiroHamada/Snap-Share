@@ -30,6 +30,7 @@ import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.ui.sendfilescreen.filecard.FileCard
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.tooling.preview.Preview
+import com.someoddguy.snapshare.ui.receiveradvertiserscreen.ReceiverAdvertiser
 
 @Composable
 fun SendFileScreen(
@@ -46,7 +47,7 @@ fun SendFileScreen(
         // Pass the result directly to the ViewModel
         viewModel.addFiles(uris)
     }
-
+    ReceiverAdvertiser.startAdvertising()
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = colorResource(R.color.black),
@@ -99,6 +100,7 @@ fun SendFileScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
+                        ReceiverAdvertiser.stopAdvertising()
                         navHostController.navigate(Routes.SearchBluetoothUsers) {}
                     }
                 ) {

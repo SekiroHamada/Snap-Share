@@ -17,6 +17,7 @@ import android.os.Looper
 import androidx.annotation.RequiresPermission
 import com.someoddguy.snapshare.ble.BleConfig
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
+import com.someoddguy.snapshare.ui.receiveradvertiserscreen.ReceiverAdvertiser
 import com.someoddguy.snapshare.utils.showToast
 import com.someoddguy.snapshare.wifip2p.WifiP2PGenerator
 import java.util.UUID
@@ -136,7 +137,10 @@ object BleGattConnectionHandler {
             val deviceAddress = device.address
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    //do nothing
+                    //TODO check if this works for pendingIntent
+                    if(ReceiverAdvertiser.isBackgroundIntentAdvertising.value){
+                        sendWakeUpNotification(device.address)
+                    }
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     showToast("Disconnected from Central: $deviceAddress", true)
@@ -165,11 +169,15 @@ object BleGattConnectionHandler {
         ) {
             super.onDescriptorWriteRequest(device, requestId, descriptor, preparedWrite, responseNeeded, offset, value)
 
+
+
             if (descriptor.uuid == CCCD_UUID) {
                 if (responseNeeded) {
                     gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value)
                 }
-                if(value != null && value.contentEquals(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE))
+                if(value != null && value.contentEquals(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE)) {
+
+
                     Handler(Looper.getMainLooper()).post {
                         onConnectionPromptRequested?.invoke(
                             device.address,
@@ -192,7 +200,7 @@ object BleGattConnectionHandler {
                             }
                         )
                     }
-
+                }
             }
         }
 
@@ -210,4 +218,52 @@ object BleGattConnectionHandler {
         gattServer = null
         connectedDevices.clear()
     }
+
+    //for waking up the app using a high priority notification
+    @SuppressLint("MissingPermission")
+    private fun sendWakeUpNotification(deviceAddress: String) {
+        val context = appContext ?: return
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val channelId = "snapshare_incoming_connections"
+
+        // 1. Create Notification Channel (Required for Android 8+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = android.app.NotificationChannel(
+                channelId,
+                "Incoming Connections",
+                android.app.NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        // 2. Create the Intent to launch MainActivity
+        // FLAG_ACTIVITY_NEW_TASK is strictly required when launching from outside an Activity context.
+        val intent = android.content.Intent(context, com.someoddguy.snapshare.MainActivity::class.java).apply {
+            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+            // Optional: Pass data so MainActivity knows it needs to show the prompt immediately
+            putExtra("CONNECTING_DEVICE_ADDRESS", deviceAddress)
+        }
+
+        // 3. Wrap it in a PendingIntent
+        val pendingIntent = android.app.PendingIntent.getActivity(
+            context,
+            1002, // Unique request code
+            intent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // 4. Build the High-Priority Notification
+        val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(android.R.drawable.ic_dialog_info) // TODO: Replace with your actual drawable, e.g., R.drawable.ic_launcher_foreground
+            .setContentTitle("Incoming SnapShare Connection")
+            .setContentText("Device $deviceAddress wants to send files. Tap to open.")
+            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent) // Attaches the MainActivity launcher
+            .setAutoCancel(true) // Clears the notification when tapped
+            .build()
+
+        // 5. Fire the notification
+        notificationManager.notify(deviceAddress.hashCode(), notification)
+    }
+
 }

@@ -13,11 +13,14 @@ import androidx.compose.ui.res.colorResource
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.navigation.Routes
+import com.someoddguy.snapshare.services.backgroundscanningintent.BleBackgroundScanner
 
 @Composable
 fun HomeScreen(
     navHostController: NavHostController
 ) {
+    BleBackgroundScanner.startBackgroundScan()
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = colorResource(R.color.black),

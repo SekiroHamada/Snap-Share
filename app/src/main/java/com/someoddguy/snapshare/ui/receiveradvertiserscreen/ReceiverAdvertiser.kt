@@ -7,6 +7,7 @@ import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.content.Context
 import android.os.ParcelUuid
+import androidx.compose.runtime.State
 import com.someoddguy.snapshare.ble.BleConfig
 import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.utils.showToast
@@ -22,6 +23,21 @@ object ReceiverAdvertiser {
 
     private var advertiseCallback: AdvertiseCallback? = null
 
+    //for pending intent
+    private val _isBackgroundIntentAdvertising = MutableStateFlow(false)
+
+    val isBackgroundIntentAdvertising : StateFlow<Boolean> = _isBackgroundIntentAdvertising.asStateFlow()
+
+    fun isBackgroundIntent(bool : Boolean){
+        _isBackgroundIntentAdvertising.value = bool
+    }
+    fun checkBackgroundIntent(): Boolean{
+        if(_isBackgroundIntentAdvertising.value){
+            return true
+        }else{
+            return false
+        }
+    }
     @SuppressLint("MissingPermission")
     fun startAdvertising() {
         val context = GlobalContext.appContext

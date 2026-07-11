@@ -12,7 +12,7 @@ fun resetApp(){
     BleGattConnectionHandler.stopServer()
     BleGattConnector.clearAll()
     ConnectionValidationString.resetValidation()
-
+    ReceiverAdvertiser.isBackgroundIntent(false)
     FileTransferProgress.resetProgress()
 
     ReceiverAdvertiser.stopAdvertising()

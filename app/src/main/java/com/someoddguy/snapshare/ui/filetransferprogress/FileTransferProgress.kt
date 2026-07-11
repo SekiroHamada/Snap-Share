@@ -70,4 +70,9 @@ object FileTransferProgress {
         updateFileSizeReceived(0L)
         updateProgress(false)
     }
+
+
+    fun getIsReceiving(): Boolean{
+        return _isReceiving.value
+    }
 }

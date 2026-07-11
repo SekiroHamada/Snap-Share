@@ -28,6 +28,12 @@ class MainActivity : ComponentActivity() {
 
     private fun handleShareIntent(intent: Intent?) {
         intent?.let {
+            if(it.hasExtra("CONNECTING_DEVICE_ADDRESS")){
+                val address = it.getStringExtra("CONNECTING_DEVICE_ADDRESS")
+                return
+            }
+
+
             when (it.action) {
                 Intent.ACTION_SEND -> {
                     val uri = IntentCompat.getParcelableExtra(
