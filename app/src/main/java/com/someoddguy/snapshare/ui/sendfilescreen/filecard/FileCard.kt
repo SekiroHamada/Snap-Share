@@ -22,11 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import java.net.URI
 import com.someoddguy.snapshare.R
-
 
 
 
@@ -45,7 +42,8 @@ fun FileCard(
                 .width(110.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = colorResource(R.color.black),
+                contentColor = colorResource(R.color.white)
             )
         ){
             Box(
@@ -54,14 +52,12 @@ fun FileCard(
                     .padding(8.dp),
                 contentAlignment = Alignment.Center
             ) {
-                // Displays the end of the Uri string as a placeholder for the filename
                 Text(
                     text =uri.lastPathSegment ?: "Unknown File",
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis // Adds "..." if the name is too long
+                    overflow = TextOverflow.Ellipsis
                 )
-
             }
         }
         Button(onClick = {onRemoveClick(uri)},

@@ -36,20 +36,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 
-
+@Preview
 @Composable
 fun SendFileScreen(
-    navHostController: NavHostController,
+    navHostController: NavHostController = rememberNavController(),
     viewModel: SendFileViewModel = viewModel() // Instantiates or retrieves the ViewModel
 ) {
     // Observe the state from the ViewModel
     val selectedFileUris by viewModel.selectedFileUris.collectAsState()
 
-    // 2. Use the GetMultipleContents contract
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris: List<Uri> ->
-        // Pass the result directly to the ViewModel
         viewModel.addFiles(uris)
     }
 
@@ -65,11 +63,10 @@ fun SendFileScreen(
         ) {
             if (selectedFileUris.isNotEmpty()) {
                 Text(
-                    text = "Selected Files (${selectedFileUris.size}):",
+                    text = "${selectedFileUris.size} Files Selected",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier
                         .padding(horizontal = 16.dp, vertical = 8.dp)
-                        .align(Alignment.Start) // Align text to the left
                 )
 
                 LazyRow(
