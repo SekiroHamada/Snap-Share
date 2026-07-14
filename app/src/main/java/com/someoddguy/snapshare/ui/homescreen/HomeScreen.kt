@@ -66,17 +66,23 @@ fun HomeScreen(
                         end = 20.dp,
                         bottom = 10.dp)
                     .fillMaxWidth()
-                    .height(120.dp),
+                    .height(100.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Row(){
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ){
                     Text("Send", fontSize = 50.sp)
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(20.dp))
                     UpwardArrow()
-
                 }
 
             }
+
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+
             Button(
                 onClick = {
 
@@ -93,12 +99,14 @@ fun HomeScreen(
                         end =20.dp,
                         bottom = 20.dp)
                     .fillMaxWidth()
-                    .height(120.dp),
+                    .height(100.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Row() {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text("Receive", fontSize = 50.sp)
-                    Spacer(modifier = Modifier.width(2.dp))
+                    Spacer(modifier = Modifier.width(20.dp))
                     DownwardArrow()
                 }
             }

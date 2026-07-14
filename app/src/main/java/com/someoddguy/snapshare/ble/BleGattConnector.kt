@@ -126,9 +126,9 @@
                             gatt.requestMtu(517)
                             ConnectionValidationString.updateStart(true)
                             ConnectionValidationString.updateStatus("Connected to Central")
-                        }
-                        // Otherwise, we assume it's the Wi-Fi P2P credentials
-                        else if (valueString.contains("|")) {
+                        }else if(valueString == "Cancel"){
+                            cancelConnection()
+                        }else if (valueString.contains("|")) {
                             val credentials = valueString.split("|")
                             if (credentials.size == 2) {
                                 val ssid = credentials[0]
@@ -159,5 +159,9 @@
             @SuppressLint("MissingPermission")
             activeConnections.forEach { it.disconnect() }
             activeConnections.clear()
+        }
+        fun cancelConnection(){
+            ConnectionValidationString.updateButtonClick(true)
+            ConnectionValidationString.updateCancelStatus(true)
         }
     }

@@ -3,6 +3,7 @@ package com.someoddguy.snapshare.ui.searchbluetoothusers
 import android.annotation.SuppressLint
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -89,7 +90,7 @@ fun SearchBluetoothUsers(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.Center
             ) {
                 Button(
                     onClick = {

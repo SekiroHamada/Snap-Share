@@ -1,49 +1,83 @@
 package com.someoddguy.snapshare.ui.homescreen.animateddropbox
 
-import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import com.someoddguy.snapshare.R
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 
+@Preview
 @Composable
 fun UpwardArrow() {
     // 1. Create the infinite transition
     val infiniteTransition = rememberInfiniteTransition(label = "upArrow")
-
+    val duration = 1200
     // 2. Define the animated value
     val translateY by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 5f,
+        initialValue = 100f,
+        targetValue = 60f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
+            animation = tween(durationMillis = duration, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
         ),
         label = "translateY"
     )
-    Box(modifier = Modifier
-        .graphicsLayer{
-            this.translationY = translateY
-        }){
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = duration,
+                easing = CubicBezierEasing(
+                    0.8f,
+                    0.0f,
+                    1.0f,
+                    0.2f)
+            ),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "alpha"
+    )
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier =Modifier.offset(y = (-15).dp)
+    ){
         Icon(
-            painter = painterResource(id = R.drawable.ic_custom_send),
+            painter = painterResource(id = R.drawable.arrow_up),
             contentDescription = "Send",
-            modifier = Modifier.size(50.dp),
+            modifier = Modifier
+                .size(30.dp)
+                .graphicsLayer{
+                    this.translationY = translateY
+                    this.alpha = alpha
+                },
             tint = colorResource(R.color.lightning)
-
-
+        )
+        Icon(
+            painter = painterResource(id = R.drawable.tray),
+            contentDescription = "Send",
+            modifier = Modifier
+                .size(50.dp),
+            tint = colorResource(R.color.lightning)
         )
     }
 

@@ -81,4 +81,17 @@ object ReceiverAdvertiser {
             showToast("Advertising stopped!", true)
         }
     }
+
+    @SuppressLint("MissingPermission")
+    fun doneAdvertising(){
+        val context = GlobalContext.appContext
+        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val advertiser = bluetoothManager.adapter?.bluetoothLeAdvertiser
+
+        advertiseCallback?.let {
+            advertiser?.stopAdvertising(it)
+            _isAdvertising.value = false
+            showToast("Advertising stopped!", true)
+        }
+    }
 }

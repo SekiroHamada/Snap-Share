@@ -17,6 +17,7 @@ import android.os.Looper
 import androidx.annotation.RequiresPermission
 import com.someoddguy.snapshare.ble.BleConfig
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
+import com.someoddguy.snapshare.ui.receiveradvertiserscreen.ReceiverAdvertiser
 import com.someoddguy.snapshare.utils.showToast
 import com.someoddguy.snapshare.wifip2p.WifiP2PGenerator
 import java.util.UUID
@@ -174,11 +175,11 @@ object BleGattConnectionHandler {
                         onConnectionPromptRequested?.invoke(
                             device.address,
                             { // --- onKeep Clicked ---
+                                ReceiverAdvertiser.doneAdvertising()
                                 addDevice(device)
                                 ConnectionValidationString.updateStart(true)
                                 ConnectionValidationString.updateStatus("Connected to Central ${device.address}")
 
-                                // 100% safe to send now; the client is guaranteed to be listening
                                 sendIndication("ACCEPTED")
                             },
                             { // --- onRemove Clicked ---
@@ -209,5 +210,10 @@ object BleGattConnectionHandler {
         }
         gattServer = null
         connectedDevices.clear()
+    }
+
+    fun cancelConnection(){
+        sendIndication("Cancel")
+        stopServer()
     }
 }

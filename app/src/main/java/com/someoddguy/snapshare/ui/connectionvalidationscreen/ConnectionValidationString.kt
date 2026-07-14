@@ -40,10 +40,17 @@ object ConnectionValidationString {
         _cancel.value = bool
     }
 
+    private val _isButtonClicked = MutableStateFlow(false)
+    val isButtonClicked : StateFlow<Boolean> = _isButtonClicked.asStateFlow()
+    fun updateButtonClick(bool: Boolean){
+        _isButtonClicked.value = bool
+    }
+
     fun resetValidation() {
         updateStart(false)
         _statusString.value = ""
         updateInitiateTransfer(false)
         updateCancelStatus(false)
+        updateButtonClick(false)
     }
 }
