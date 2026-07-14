@@ -87,14 +87,16 @@ fun SplashScreen(
             perms.add(Manifest.permission.BLUETOOTH_CONNECT)
             perms.add(Manifest.permission.BLUETOOTH_ADVERTISE)
         }
-        // 2. Wi-Fi permissions (Android 13+)
+        // 2. Wi-Fi and Push Notification permissions (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             perms.add(Manifest.permission.NEARBY_WIFI_DEVICES)
+            perms.add(Manifest.permission.POST_NOTIFICATIONS)
         }
 
         perms.toTypedArray()
     }
 
+    // to navigate to different pages based on files
     val navigateToHome = {
         if(isFilesEmpty){
             navHostController.navigate(Routes.HomeScreen) {
@@ -104,25 +106,6 @@ fun SplashScreen(
             navHostController.navigate(Routes.SendFileScreen) {
                 popUpTo(Routes.SplashScreen) { inclusive = true }
             }
-        }
-
-    }
-
-    // Helper function to check hardware states sequentially
-    val checkHardwareAndNavigate = {
-        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        val btAdapter = bluetoothManager.adapter
-        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-
-        if (btAdapter?.isEnabled != true) {
-            // Request Bluetooth Enable
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            // (Note: we use activity?.startActivityForResult if not using a launcher,
-            // but since we have a launcher below, we'll let the launcher handle it)
-        } else if (!wifiManager.isWifiEnabled) {
-            // Request Wi-Fi Enable
-        } else {
-            navigateToHome()
         }
     }
 
@@ -162,6 +145,30 @@ fun SplashScreen(
         }
     }
 
+    // Helper function to check hardware states sequentially
+    // Defined AFTER the launchers so it can use them
+    val checkHardwareAndNavigate = {
+        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val btAdapter = bluetoothManager.adapter
+        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+        if (btAdapter?.isEnabled != true) {
+            // Request Bluetooth Enable
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            enableBluetoothLauncher.launch(enableBtIntent)
+        } else if (!wifiManager.isWifiEnabled) {
+            // Request Wi-Fi Enable
+            val enableWifiIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                Intent(Settings.Panel.ACTION_WIFI)
+            } else {
+                Intent(Settings.ACTION_WIFI_SETTINGS)
+            }
+            enableWifiLauncher.launch(enableWifiIntent)
+        } else {
+            navigateToHome()
+        }
+    }
+
     // 3. Launcher for Permissions
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -169,26 +176,7 @@ fun SplashScreen(
         val allGranted = perms.values.all { it }
 
         if (allGranted) {
-            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-            val btAdapter = bluetoothManager.adapter
-            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-
-            if (btAdapter?.isEnabled != true) {
-                // First trigger BT prompt
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                enableBluetoothLauncher.launch(enableBtIntent)
-            } else if (!wifiManager.isWifiEnabled) {
-                // If BT is already on, trigger Wi-Fi prompt
-                val enableWifiIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    Intent(Settings.Panel.ACTION_WIFI)
-                } else {
-                    Intent(Settings.ACTION_WIFI_SETTINGS)
-                }
-                enableWifiLauncher.launch(enableWifiIntent)
-            } else {
-                // Both are already on
-                navigateToHome()
-            }
+            checkHardwareAndNavigate()
         } else {
             showRetryButton = true
 
@@ -208,22 +196,7 @@ fun SplashScreen(
         delay(timeMillis = 1000)
         val ungranted = context.ungrantedPermissions(permissionsToRequest)
         if (ungranted.isEmpty()) {
-            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-            val btAdapter = bluetoothManager.adapter
-            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-
-            if (btAdapter?.isEnabled != true) {
-                enableBluetoothLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-            } else if (!wifiManager.isWifiEnabled) {
-                val enableWifiIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    Intent(Settings.Panel.ACTION_WIFI)
-                } else {
-                    Intent(Settings.ACTION_WIFI_SETTINGS)
-                }
-                enableWifiLauncher.launch(enableWifiIntent)
-            } else {
-                navigateToHome()
-            }
+            checkHardwareAndNavigate()
         } else {
             permissionLauncher.launch(ungranted)
         }

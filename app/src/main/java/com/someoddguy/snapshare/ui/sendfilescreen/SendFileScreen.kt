@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +30,12 @@ import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.ui.sendfilescreen.filecard.FileCard
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
+
 
 @Composable
 fun SendFileScreen(
@@ -89,9 +95,22 @@ fun SendFileScreen(
                 onClick = {
                     // 3. Launch the picker. The system UI will now allow long-pressing to select multiple.
                     filePickerLauncher.launch("*/*")
-                }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(R.color.teal_700),
+                    contentColor = colorResource(R.color.lightning)
+                ),
+                modifier = Modifier
+                    .padding(
+                        start = 20.dp,
+                        top = 20.dp,
+                        end = 20.dp,
+                        bottom = 10.dp)
+                    .width(240.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Select Files to Share")
+                Text("Select Files to Share", fontSize = 20.sp)
             }
 
             // 4. Update the UI feedback to show the count
@@ -100,9 +119,22 @@ fun SendFileScreen(
                 Button(
                     onClick = {
                         navHostController.navigate(Routes.SearchBluetoothUsers) {}
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(R.color.teal_700),
+                        contentColor = colorResource(R.color.lightning)
+                    ),
+                    modifier = Modifier
+                        .padding(
+                            start = 20.dp,
+                            top = 20.dp,
+                            end = 20.dp,
+                            bottom = 10.dp)
+                        .width(240.dp)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(text = "Send")
+                    Text("Send", fontSize = 20.sp)
                 }
             }
         }

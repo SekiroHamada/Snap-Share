@@ -1,8 +1,10 @@
 package com.someoddguy.snapshare.ui.receiveradvertiserscreen
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -11,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -88,9 +91,23 @@ fun ReceiveFileScreen(
                         viewModel.stopAdvertising()
                     }
                 },
-                modifier = Modifier.padding(16.dp)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(R.color.teal_700),
+                    contentColor = colorResource(R.color.lightning)
+                ),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(
+                        start = 20.dp,
+                        top = 20.dp,
+                        end = 20.dp,
+                        bottom = 10.dp)
+                    .width(240.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp)
+
             ) {
-                Text(if (isAdvertising) "Stop Broadcasting" else "Receive Files")
+                Text(if (isAdvertising) "Stop Broadcasting" else "Receive Files", fontSize = 20.sp)
             }
         }
     }
