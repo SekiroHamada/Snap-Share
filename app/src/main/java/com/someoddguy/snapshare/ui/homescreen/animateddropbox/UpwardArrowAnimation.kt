@@ -61,7 +61,7 @@ fun UpwardArrow() {
         modifier =Modifier.offset(y = (-15).dp)
     ){
         Icon(
-            painter = painterResource(id = R.drawable.arrow_up),
+            painter = painterResource(id = R.drawable.ic_arrow_up),
             contentDescription = "Send",
             modifier = Modifier
                 .size(30.dp)
@@ -72,7 +72,7 @@ fun UpwardArrow() {
             tint = colorResource(R.color.lightning)
         )
         Icon(
-            painter = painterResource(id = R.drawable.tray),
+            painter = painterResource(id = R.drawable.ic_tray),
             contentDescription = "Send",
             modifier = Modifier
                 .size(50.dp),

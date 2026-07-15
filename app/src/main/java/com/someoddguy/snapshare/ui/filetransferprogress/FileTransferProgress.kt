@@ -59,8 +59,6 @@ object FileTransferProgress {
         _isDone.value = bool
     }
 
-
-
     fun resetProgress(){
         updateTotalFiles(0)
         updateFilesDone(0)

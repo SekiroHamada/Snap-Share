@@ -111,6 +111,9 @@ fun ReceiveFileScreen(
         ) {
             if(isAdvertising){
                 ReceiveSvg()
+            }else{
+                Spacer(modifier = Modifier
+                    .height(30.dp))
             }
             Button(
                 onClick = {

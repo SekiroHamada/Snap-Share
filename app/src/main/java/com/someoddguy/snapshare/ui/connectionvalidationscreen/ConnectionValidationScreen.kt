@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.services.resetApp
+import com.someoddguy.snapshare.ui.receiveradvertiserscreen.receivesvg.ReceiveSvg
 import com.someoddguy.snapshare.wifip2p.WifiP2PClient
 import com.someoddguy.snapshare.wifip2p.WifiP2PGenerator
 import kotlinx.coroutines.delay
@@ -37,7 +38,6 @@ fun ConnectionValidationScreen(
     navHostController: NavHostController,
     viewModel: ConnectionValidationViewModel = viewModel()
 ){
-    // Collect the single state object
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -79,13 +79,10 @@ fun ConnectionValidationScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // The standard Jetpack Compose rotating loading icon
-            CircularProgressIndicator()
+            ReceiveSvg()
 
-            // Adds a little space between the icon and the text
             Spacer(modifier = Modifier.height(16.dp))
 
-            // The text that automatically updates when the ViewModel changes
             Text(text = uiState.statusString)
 
             Spacer(modifier = Modifier.height(32.dp))

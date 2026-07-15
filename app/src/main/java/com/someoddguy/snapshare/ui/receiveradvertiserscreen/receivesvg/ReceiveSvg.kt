@@ -1,6 +1,5 @@
 package com.someoddguy.snapshare.ui.receiveradvertiserscreen.receivesvg
 
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat

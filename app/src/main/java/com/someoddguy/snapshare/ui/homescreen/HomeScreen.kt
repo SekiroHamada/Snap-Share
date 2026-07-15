@@ -25,6 +25,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.navigation.Routes
+import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
 import com.someoddguy.snapshare.ui.homescreen.animateddropbox.DownwardArrow
 import com.someoddguy.snapshare.ui.homescreen.animateddropbox.UpwardArrow
 
@@ -48,7 +49,6 @@ fun HomeScreen(
 
             Button(
                 onClick = {
-                    // 3. Launch the picker. The system UI will now allow long-pressing to select multiple.
                     navHostController.navigate(Routes.SendFileScreen) {}
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -81,7 +81,7 @@ fun HomeScreen(
 
             Button(
                 onClick = {
-
+                    FileTransferProgress.updateIsReceiving(true)
                     navHostController.navigate(Routes.ReceiveFileScreen){}
                 },
                 colors = ButtonDefaults.buttonColors(

@@ -1,6 +1,7 @@
 package com.someoddguy.snapshare.ui.sendfilescreen
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +36,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
+import com.someoddguy.snapshare.filepackettransfer.SendFilePackets
+import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
 
 @Preview
 @Composable
@@ -49,6 +52,11 @@ fun SendFileScreen(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris: List<Uri> ->
         viewModel.addFiles(uris)
+    }
+
+    BackHandler() {
+        navHostController.popBackStack()
+        SendFilePackets.clearFiles()
     }
 
     Surface(
