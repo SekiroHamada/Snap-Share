@@ -1,9 +1,9 @@
 package com.someoddguy.snapshare.ui.searchbluetoothusers.searchdevicecard
 
-import android.location.Address
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.someoddguy.snapshare.R
 
-@Composable
 @Preview
+@Composable
 fun SearchDeviceCard(
     deviceName: String,
     deviceAddress: String,
@@ -39,7 +40,7 @@ fun SearchDeviceCard(
             .border(
                 width = 2.dp,
                 color = colorResource(R.color.white),
-                shape = CircleShape
+                shape = RoundedCornerShape(12.dp)
             )
             .padding(
                 top = 12.dp,
@@ -64,9 +65,13 @@ fun SearchDeviceCard(
                         shape = CircleShape
                     )
                     .clip(CircleShape)
-                    .background(colorResource(id = R.color.lightning))
-            ){
+                    .background(colorResource(id = R.color.lightning)),
+                contentAlignment = Alignment.Center
 
+            ){
+                Text("${deviceName[0]}",
+                    fontSize = 15.sp,
+                    color = colorResource(R.color.black))
             }
 
             Spacer(

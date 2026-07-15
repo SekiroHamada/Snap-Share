@@ -103,7 +103,7 @@ fun SendFileScreen(
                         top = 20.dp,
                         end = 20.dp,
                         bottom = 10.dp)
-                    .width(240.dp)
+                    .width(270.dp)
                     .height(50.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {

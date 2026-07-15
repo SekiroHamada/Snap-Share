@@ -64,6 +64,7 @@ object BleGattConnectionHandler {
         }
     }
 
+
     @SuppressLint("MissingPermission")
     fun startServer(context: Context) {
         if (appContext == null) {
@@ -137,7 +138,8 @@ object BleGattConnectionHandler {
             val deviceAddress = device.address
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    //do nothing
+                    //to stop advertising
+                    ReceiverAdvertiser.doneAdvertising()
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     showToast("Disconnected from Central: $deviceAddress", true)
@@ -190,6 +192,7 @@ object BleGattConnectionHandler {
                                 Handler(Looper.getMainLooper()).postDelayed({
                                     gattServer?.cancelConnection(device)
                                 }, 500L)
+                                ReceiverAdvertiser.startAdvertising()
                             }
                         )
                     }

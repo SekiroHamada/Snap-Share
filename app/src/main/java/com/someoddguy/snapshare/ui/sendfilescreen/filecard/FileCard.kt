@@ -1,6 +1,7 @@
 package com.someoddguy.snapshare.ui.sendfilescreen.filecard
 
 import android.net.Uri
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.someoddguy.snapshare.R
 
 
@@ -39,7 +41,11 @@ fun FileCard(
         Card(
             modifier = Modifier
                 .height(120.dp)
-                .width(110.dp),
+                .width(110.dp)
+                .border(
+                    width = 12.dp,
+                    color = colorResource(R.color.lightning)
+                ),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             colors = CardDefaults.cardColors(
                 containerColor = colorResource(R.color.black),
