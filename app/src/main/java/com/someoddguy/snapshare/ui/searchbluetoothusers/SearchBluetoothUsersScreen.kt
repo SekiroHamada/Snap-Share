@@ -1,6 +1,7 @@
 package com.someoddguy.snapshare.ui.searchbluetoothusers
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -14,22 +15,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.ui.searchbluetoothusers.searchdevicecard.SearchDeviceCard
 
+
 @SuppressLint("MissingPermission")
-@Preview
 @Composable
 fun SearchBluetoothUsers(
-    navHostController: NavHostController=rememberNavController(),
+    navHostController: NavHostController,
     viewModel: SearchBluetoothViewModel = viewModel()
 ) {
     val scanResults by viewModel.scanResults.collectAsState()
@@ -62,7 +63,7 @@ fun SearchBluetoothUsers(
                     .weight(1f)
                     .then(
                         if (scanResults.isNotEmpty()) {
-                            Modifier.border(width = 3.dp, color = colorResource(id = R.color.white))
+                            Modifier.background(color = Color.Black.copy(alpha = 0.5f))
                         } else {
                             Modifier
                         }
@@ -95,7 +96,6 @@ fun SearchBluetoothUsers(
                 Button(
                     onClick = {
                         if(!isScanning){
-                            // Permissions are now handled at Splash Screen
                             viewModel.startBleScan()
                         }else{
                             viewModel.stopBleScan()
@@ -113,8 +113,7 @@ fun SearchBluetoothUsers(
                             bottom = 20.dp)
                         .width(240.dp)
                         .height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(if(!isScanning)"Scan" else "Stop Scan", fontSize = 20.sp)
                 }

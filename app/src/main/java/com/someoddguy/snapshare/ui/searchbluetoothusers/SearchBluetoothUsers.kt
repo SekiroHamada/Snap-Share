@@ -70,7 +70,6 @@ object SearchBluetoothUsers {
 
     @SuppressLint("MissingPermission")
     fun startBleScan(context: Context) {
-        // Initialize scanner if it hasn't been created yet
         if (bleScanner == null) {
             val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
             bleScanner = bluetoothManager.adapter.bluetoothLeScanner

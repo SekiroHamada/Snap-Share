@@ -79,8 +79,11 @@ object BleGattConnectionHandler {
         // Initialize the characteristic with READ permission
         dataCharacteristic = BluetoothGattCharacteristic(
             DATA_CHARACTERISTIC_UUID,
-            BluetoothGattCharacteristic.PROPERTY_READ or BluetoothGattCharacteristic.PROPERTY_INDICATE,
-            BluetoothGattCharacteristic.PERMISSION_READ
+            BluetoothGattCharacteristic.PROPERTY_READ or
+                    BluetoothGattCharacteristic.PROPERTY_INDICATE or
+                    BluetoothGattCharacteristic.PROPERTY_WRITE,
+            BluetoothGattCharacteristic.PERMISSION_READ or
+                    BluetoothGattCharacteristic.PERMISSION_WRITE
         )
         val cccd = BluetoothGattDescriptor(
             CCCD_UUID,
@@ -138,7 +141,6 @@ object BleGattConnectionHandler {
             val deviceAddress = device.address
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    //to stop advertising
                     ReceiverAdvertiser.doneAdvertising()
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
@@ -161,6 +163,38 @@ object BleGattConnectionHandler {
 
         }
 
+
+        @SuppressLint("MissingPermission")
+        override fun onCharacteristicWriteRequest(
+            device: BluetoothDevice,
+            requestId: Int,
+            characteristic: BluetoothGattCharacteristic?,
+            preparedWrite: Boolean,
+            responseNeeded: Boolean,
+            offset: Int,
+            value: ByteArray?
+        ) {
+            super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value)
+
+            if(characteristic?.uuid == DATA_CHARACTERISTIC_UUID){
+                //TODO we might not need responseNeeded as client wont ask for response
+                // Acknowledge the write request if the client requires a response
+                if (responseNeeded) {
+                    gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value)
+                }
+                val message = value?.let{String(it, Charsets.UTF_8)}
+                if(message == "Cancel"){
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        gattServer?.cancelConnection(device)
+                    }, 500L)
+                    stopServer()
+                    ConnectionValidationString.updateCancelStatus(true)
+                }
+
+            }
+
+        }
+
         @SuppressLint("MissingPermission")
         override fun onDescriptorWriteRequest(
             device: BluetoothDevice, requestId: Int, descriptor: BluetoothGattDescriptor,
@@ -177,11 +211,9 @@ object BleGattConnectionHandler {
                         onConnectionPromptRequested?.invoke(
                             device.address,
                             { // --- onKeep Clicked ---
-                                ReceiverAdvertiser.doneAdvertising()
                                 addDevice(device)
                                 ConnectionValidationString.updateStart(true)
                                 ConnectionValidationString.updateStatus("Connected to Central ${device.address}")
-
                                 sendIndication("ACCEPTED")
                             },
                             { // --- onRemove Clicked ---
@@ -199,13 +231,11 @@ object BleGattConnectionHandler {
 
             }
         }
-
     }
 
     @SuppressLint("MissingPermission")
     fun stopServer() {
         gattServer?.let { server ->
-            // Disconnect all tracked devices before closing
             connectedDevices.forEach { device ->
                 server.cancelConnection(device)
             }

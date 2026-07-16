@@ -1,4 +1,3 @@
-
     import android.annotation.SuppressLint
     import android.bluetooth.BluetoothDevice
     import android.bluetooth.BluetoothGatt
@@ -10,6 +9,7 @@
     import android.content.Context
     import com.someoddguy.snapshare.ble.BleConfig
     import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
+    import com.someoddguy.snapshare.ui.searchbluetoothusers.SearchBluetoothUsers
     import com.someoddguy.snapshare.utils.showToast
     import com.someoddguy.snapshare.wifip2p.WifiP2PClient
     import java.util.UUID
@@ -52,7 +52,6 @@
 
                     if (status == BluetoothGatt.GATT_SUCCESS) {
                         if (newState == BluetoothProfile.STATE_CONNECTED) {
-                            showToast("Connected to $deviceName",true)
                             addConnection(gatt)
                             gatt.discoverServices()
 
@@ -61,17 +60,18 @@
                             removeConnection(gatt)
                             gatt.disconnect()
                             gatt.close()
+                            SearchBluetoothUsers.startBleScan(context)
                         }
                     } else {
                         showToast("Error $status encountered for $deviceName! Disconnecting...",true)
                         removeConnection(gatt)
                         gatt.disconnect()
                         gatt.close()
+                        SearchBluetoothUsers.startBleScan(context)
                     }
                 }
 
 
-                //check when services are discovered
                 @SuppressLint("MissingPermission")
                 override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
                     if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -79,9 +79,7 @@
                         val service = gatt.getService(APP_SERVICE_UUID)
                         val characteristic = service?.getCharacteristic(DATA_CHARACTERISTIC_UUID)
                         if (characteristic != null) {
-                            // Enable local notifications
                             gatt.setCharacteristicNotification(characteristic, true)
-                            // Write to the CCCD descriptor to enable server-side indications
                             val descriptor = characteristic.getDescriptor(BleConfig.CCCD_UUID)
                             if (descriptor != null) {
                                 descriptor.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
@@ -89,6 +87,10 @@
                             }
                         } else {
                             showToast("Target characteristic not found!", true)
+                            removeConnection(gatt)
+                            gatt.disconnect()
+                            gatt.close()
+                            SearchBluetoothUsers.startBleScan(context)
                         }
 
                     }
@@ -100,7 +102,6 @@
                 override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
                     super.onMtuChanged(gatt, mtu, status)
                     if(status== BluetoothGatt.GATT_SUCCESS){
-                        //mtu increased
                         ConnectionValidationString.updateStatus("MTU increased")
                     }
                 }
@@ -116,18 +117,23 @@
                     if (valueBytes != null) {
                         val valueString = String(valueBytes, Charsets.UTF_8)
 
-                        // Check if Server denied the connection
                         if (valueString == "DENIED") {
-
                             showToast("Connection rejected by host. Disconnecting...", true)
                             removeConnection(gatt)
                             gatt.disconnect()
+                            gatt.close()
+                            SearchBluetoothUsers.startBleScan(context)
                         }else if(valueString == "ACCEPTED"){
-                            gatt.requestMtu(517)
                             ConnectionValidationString.updateStart(true)
+                            gatt.requestMtu(517)
                             ConnectionValidationString.updateStatus("Connected to Central")
                         }else if(valueString == "Cancel"){
+                            removeConnection(gatt)
+                            gatt.disconnect()
+                            gatt.close()
                             cancelConnection()
+                            SearchBluetoothUsers.startBleScan(context)
+                            //TODO add the resetting functionality
                         }else if (valueString.contains("|")) {
                             val credentials = valueString.split("|")
                             if (credentials.size == 2) {
@@ -160,8 +166,33 @@
             activeConnections.forEach { it.disconnect() }
             activeConnections.clear()
         }
+        @SuppressLint("MissingPermission")
         fun cancelConnection(){
             ConnectionValidationString.updateButtonClick(true)
             ConnectionValidationString.updateCancelStatus(true)
+        }
+        @SuppressLint("MissingPermission")
+        fun cancelConnectionIndication(){
+            val message = "Cancel".toByteArray(Charsets.UTF_8)
+            activeConnections.forEach { gatt ->
+                val service = gatt.getService(APP_SERVICE_UUID)
+                val characteristic = service?.getCharacteristic(DATA_CHARACTERISTIC_UUID)
+
+                if (characteristic != null) {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                        gatt.writeCharacteristic(
+                            characteristic,
+                            message,
+                            BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                        )
+                    } else {
+                        @Suppress("DEPRECATION")
+                        characteristic.value = message
+                        @Suppress("DEPRECATION")
+                        gatt.writeCharacteristic(characteristic)
+                    }
+                }
+
+            }
         }
     }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -49,16 +50,17 @@ fun ConnectionValidationScreen(
 
     LaunchedEffect(uiState.cancel) {
         if(uiState.cancel){
+            ConnectionValidationString.updateButtonClick(true)
             coroutineScope.launch{
                 delay(3000L)
-
                 if(uiState.isReceiving){
+                    BleGattConnectionHandler.cancelConnection()
                     WifiP2PGenerator.killAllWifiGeneratorConnections()
                 }else{
+                    BleGattConnector.cancelConnection()
                     WifiP2PClient.killAllWifiClientConnections()
                 }
                 resetApp()
-
                 delay(1000L)
                 navHostController.navigate(Routes.HomeScreen) {
                     popUpTo(0) { inclusive = true }
@@ -66,8 +68,6 @@ fun ConnectionValidationScreen(
             }
         }
     }
-
-
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -91,22 +91,11 @@ fun ConnectionValidationScreen(
             Button(
                 enabled = !uiState.isButtonClicked,
                 onClick ={
-                    ConnectionValidationString.updateButtonClick(true)
-                    coroutineScope.launch{
-                        delay(1000L)
-                        if(uiState.isReceiving){
-                            BleGattConnectionHandler.cancelConnection()
-                            WifiP2PGenerator.killAllWifiGeneratorConnections()
-                        }else{
-                            BleGattConnector.cancelConnection()
-                            WifiP2PClient.killAllWifiClientConnections()
-                        }
-                        resetApp()
-                        delay(1000L)
-                        navHostController.navigate(Routes.HomeScreen) {
-                            popUpTo(0) { inclusive = true }
-                        }
+                    if(!uiState.isReceiving){
+                        BleGattConnector.cancelConnectionIndication()
                     }
+                    ConnectionValidationString.updateButtonClick(true)
+                    ConnectionValidationString.updateCancelStatus(true)
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorResource(R.color.teal_700),
@@ -118,15 +107,11 @@ fun ConnectionValidationScreen(
                         top = 20.dp,
                         end = 20.dp,
                         bottom = 10.dp)
-                    .fillMaxWidth()
-                    .height(30.dp),
+                    .width(260.dp)
+                    .height(50.dp),
                 shape = RoundedCornerShape(12.dp)
             ){
-                if(uiState.isButtonClicked){
-                    Text("Processing")
-                }else{
-                    Text("Cancel")
-                }
+                Text(if (uiState.isButtonClicked) "Processing" else "Cancel", fontSize = 20.sp)
             }
         }
     }

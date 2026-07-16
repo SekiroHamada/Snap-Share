@@ -4,6 +4,7 @@ import android.app.Application
 import android.bluetooth.le.ScanResult
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,16 +13,10 @@ import kotlinx.coroutines.launch
 
 class SearchBluetoothViewModel(application: Application) : AndroidViewModel(application) {
 
-    // Directly expose the flows from the Singleton for the UI to observe
     val isScanning: StateFlow<Boolean> = SearchBluetoothUsers.isScanning
     val scanResults: StateFlow<List<ScanResult>> = SearchBluetoothUsers.scanResults
 
-    fun clearResults() {
-        SearchBluetoothUsers.clearResults()
-    }
-
     fun startBleScan() {
-        // Pass the application context down to the singleton
         SearchBluetoothUsers.startBleScan(getApplication())
     }
 
@@ -33,12 +28,11 @@ class SearchBluetoothViewModel(application: Application) : AndroidViewModel(appl
         if (isScanning.value) {
             stopBleScan()
         }
-        val context = getApplication<Application>()
+        val context = GlobalContext.appContext
         SearchBluetoothUsers.clearResults()
         BleGattConnector.startConnection(context, result)
     }
 
-    // Connection validation state is kept in the ViewModel as it's UI specific
     private val _startStatus = MutableStateFlow(false)
     val startStatus: StateFlow<Boolean> = _startStatus.asStateFlow()
 

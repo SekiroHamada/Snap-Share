@@ -16,7 +16,6 @@ import com.someoddguy.snapshare.utils.CheckHotspot
 
 object WifiP2PGenerator {
 
-    // Increase settling time between operations
     private const val OPERATION_DELAY_MS = 1500L
     private const val CREATE_GROUP_DELAY_MS = 2000L
 
@@ -37,6 +36,7 @@ object WifiP2PGenerator {
                 m.requestP2pState(c){state->
                     if (state != WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
                         ConnectionValidationString.updateStatus("WiFi P2P is not enabled on this device")
+
                         return@requestP2pState
                     }
                     stopDiscoveryStep(changeWifiCredentials)
