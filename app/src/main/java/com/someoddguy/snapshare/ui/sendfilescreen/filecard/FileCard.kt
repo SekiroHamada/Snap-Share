@@ -1,6 +1,8 @@
 package com.someoddguy.snapshare.ui.sendfilescreen.filecard
 
+import android.content.Context
 import android.net.Uri
+import android.webkit.MimeTypeMap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -29,24 +31,32 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.someoddguy.snapshare.R
 import androidx.compose.material3.Icon
+import com.someoddguy.snapshare.globalcontext.GlobalContext
 
-val fileTypeIcons = mapOf(
-    "mp3" to R.drawable.ic_headphone,
-    "mp4" to R.drawable.ic_video,
-    "mkv" to R.drawable.ic_video,
-    "jpg" to R.drawable.ic_file,
-    "pdf" to R.drawable.ic_pdf
-)
+
+fun getMimeType(context: Context, uri: Uri): String {
+    if (uri.scheme == "content") {
+        return context.contentResolver.getType(uri) ?: "unknown"
+    }
+
+    val extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
+    return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.lowercase()) ?: "unknown"
+}
 @Composable
 fun FileCard(
     uri: Uri,
     onRemoveClick: (Uri) -> Unit
 ){
-
+    val context = GlobalContext.appContext
     val fileName = uri.lastPathSegment?:"Unknown File"
-    val fileExtension = fileName.substringAfterLast('.', missingDelimiterValue = "").lowercase()
-    val backgroundResId = fileTypeIcons[fileExtension]
-
+    val mimeType = getMimeType(context, uri)
+    val backgroundResId = when {
+        mimeType.startsWith("audio/") -> R.drawable.ic_headphone
+        mimeType.startsWith("video/") -> R.drawable.ic_video
+        mimeType == "application/pdf" -> R.drawable.ic_pdf
+        mimeType.startsWith("image/") -> R.drawable.ic_image // Or R.drawable.ic_image if you have one
+        else -> R.drawable.ic_file
+    }
     Box(
         modifier = Modifier
             .padding(top = 12.dp, end = 12.dp)
@@ -69,14 +79,21 @@ fun FileCard(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .paint(
+                        painter = painterResource(id = backgroundResId),
+                        contentScale = ContentScale.Inside
+                    )
                     .padding(8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text =fileExtension,
+                    text =fileName,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .padding(horizontal = 2.dp, vertical = 2.dp)
+                        .offset(y = 40.dp)
                 )
             }
         }
@@ -92,26 +109,12 @@ fun FileCard(
                 )
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_cancel), // Replace with your SVG resource name
+                painter = painterResource(id = R.drawable.ic_cancel),
                 contentDescription = "Remove file",
-                tint = Color.White // This colors your SVG white to match your original text
+                tint = Color.White
             )
         }
-//        Button(onClick = {onRemoveClick(uri)},
-//            modifier = Modifier
-//                .align(Alignment.TopEnd)
-//                .offset(x=5.dp , y = (-6).dp)
-//                .size(28.dp ),
-//            shape = CircleShape,
-//            contentPadding = PaddingValues(0.dp),
-//            colors = ButtonDefaults.buttonColors(
-//                containerColor = colorResource(id=R.color.cancel_red),
-//                contentColor = Color.White
-//            )
-//
-//        ) {
-//            Text(text="X");
-//        }
+
     }
 
 }
