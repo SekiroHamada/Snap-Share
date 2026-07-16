@@ -92,9 +92,6 @@ fun ConnectionValidationScreen(
             Button(
                 enabled = !uiState.isButtonClicked,
                 onClick ={
-                    if(!uiState.isReceiving){
-                        BleGattConnector.cancelConnectionIndication()
-                    }
                     ConnectionValidationString.updateButtonClick(true)
                     ConnectionValidationString.updateCancelStatus(true)
                 },

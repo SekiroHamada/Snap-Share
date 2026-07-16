@@ -20,10 +20,8 @@ object WifiP2PClient {
 
     private const val OPERATION_DELAY_MS = 1500L
 
-    // Hold the callback reference to unregister it later
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
 
-    // Helper property to get the ConnectivityManager safely using GlobalContext
     private val connectivityManager: ConnectivityManager
         get() = GlobalContext.appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
@@ -31,15 +29,13 @@ object WifiP2PClient {
         SSID = ssid
         PASS = pass
     }
-    fun connectToGroupOwner(retries: Int = 3) {
+    fun connectToGroupOwner(retries: Int = 2) {
 
-        // 1. Specify the network credentials received via BLE
         val specifier = WifiNetworkSpecifier.Builder()
             .setSsid(SSID)
             .setWpa2Passphrase(PASS)
             .build()
 
-        // Build the network request
         val request = NetworkRequest.Builder()
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) // Crucial: Tells Android this is a local P2P network, not for internet access
@@ -48,7 +44,9 @@ object WifiP2PClient {
 
         ConnectionValidationString.updateStatus("Joining Wi-Fi Network : $SSID")
 
-        //for notification as well as foreground process
+        //TODO fix notification
+        //TODO for notification as well as foreground process
+
         FileTransferService.startService(GlobalContext.appContext)
 
         // Request the connection
@@ -67,8 +65,7 @@ object WifiP2PClient {
                         connectToGroupOwner(retries - 1)
                     }
                 }else{
-                    ConnectionValidationString.updateStatus("Failed to connect to the network.")
-                    killAllWifiClientConnections()
+                    ConnectionValidationString.updateStatus("Failed to connect to the network. Rolling Back...")
                     ConnectionValidationString.updateCancelStatus(true)
                 }
 

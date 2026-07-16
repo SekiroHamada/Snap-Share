@@ -18,8 +18,6 @@ object WifiP2PGenerator {
 
     private const val OPERATION_DELAY_MS = 1500L
     private const val CREATE_GROUP_DELAY_MS = 2000L
-
-
     private var manager: WifiP2pManager? = null
     private var channel: WifiP2pManager.Channel? = null
     private val handler = Handler(Looper.getMainLooper())
@@ -36,7 +34,7 @@ object WifiP2PGenerator {
                 m.requestP2pState(c){state->
                     if (state != WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
                         ConnectionValidationString.updateStatus("WiFi P2P is not enabled on this device")
-
+                        ConnectionValidationString.updateCancelStatus(true)
                         return@requestP2pState
                     }
                     stopDiscoveryStep(changeWifiCredentials)
@@ -64,7 +62,7 @@ object WifiP2PGenerator {
     @SuppressLint("MissingPermission")
     private fun removeExistingGroup(
         changeWifiCredentials: (String) -> Unit,
-        retries: Int = 2  // Increase retries
+        retries: Int = 2
     ) {
         manager?.removeGroup(channel, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
@@ -76,7 +74,6 @@ object WifiP2PGenerator {
             }
 
             override fun onFailure(reason: Int) {
-                ConnectionValidationString.updateStatus("removeGroup failed reason=$reason, retries left=$retries")
                 when {
                     // BUSY (2) or ERROR (0) — both warrant a retry with delay
                     (reason == WifiP2pManager.BUSY || reason == WifiP2pManager.ERROR) && retries > 0 -> {
@@ -86,7 +83,6 @@ object WifiP2PGenerator {
                     }
                     // No group existed — safe to create directly, but still delay
                     else -> {
-                        ConnectionValidationString.updateStatus("No existing group to remove (or unrecoverable). Proceeding to create.")
                         delayThen(CREATE_GROUP_DELAY_MS) {
                             createNewGroup(changeWifiCredentials)
                         }
@@ -101,22 +97,21 @@ object WifiP2PGenerator {
         changeWifiCredentials: (String) -> Unit,
         retries: Int = 3
     ) {
-        // --- START OF HOTSPOT CHECK ---
         if (CheckHotspot.isHotspotOn()) {
             ConnectionValidationString.updateStatus("Waiting for Mobile Hotspot to be turned off...")
             showToast("Please turn off your Mobile Hotspot to connect.", true)
 
-            // Ping them again by re-running this method after a delay
-            delayThen(2500L) { // 2.5 seconds gives the user time to pull down the shade
+            delayThen(2500L) {
                 createNewGroup(changeWifiCredentials, retries)
             }
-            return // Halt this execution; the check will loop via the delay handle
+            return
         }
-
-
-        ConnectionValidationString.updateStatus("Trying to create group")
+        ConnectionValidationString.updateStatus("Creating Wifi Group...")
         //for notification as well as foreground process
+        //TODO Fix notification
         FileTransferService.startService(GlobalContext.appContext)
+
+
 
         manager?.createGroup(channel, object : WifiP2pManager.ActionListener {
             @SuppressLint("MissingPermission")
@@ -133,27 +128,26 @@ object WifiP2PGenerator {
                                 changeWifiCredentials("$ssid|$pass")
                                 ConnectionValidationString.updateStatus("Socket Info : $ssid")
 
-                                //start server
                                 ServerSocketGenerator.startServer()
                             } else {
-                                showToast("SSID or Passphrase is null", true)
+                                ConnectionValidationString.updateStatus("SSID or Passphrase is null")
+                                ConnectionValidationString.updateCancelStatus(true)
                             }
                         } else {
-                            showToast("Not group owner or group is null", true)
+                            ConnectionValidationString.updateStatus("Group Owner or Group is null")
+                            ConnectionValidationString.updateCancelStatus(true)
                         }
                     }
                 }
             }
             @SuppressLint("MissingPermission")
             override fun onFailure(reason: Int) {
-                ConnectionValidationString.updateStatus("createGroup failed reason=$reason")
                 if (reason == WifiP2pManager.BUSY && retries > 0) {
                     delayThen(OPERATION_DELAY_MS) {
                         createNewGroup(changeWifiCredentials, retries - 1)
                     }
                 } else {
                     ConnectionValidationString.updateStatus("Failed to create group. Reason: $reason")
-                    killAllWifiGeneratorConnections()
                     ConnectionValidationString.updateCancelStatus(true)
                 }
             }

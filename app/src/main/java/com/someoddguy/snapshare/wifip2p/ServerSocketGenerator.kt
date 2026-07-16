@@ -13,12 +13,10 @@ object ServerSocketGenerator {
 
     fun startServer( port: Int = 7878) {
         CoroutineScope(Dispatchers.IO).launch {
-
             ServerSocket(port).use { serverSocket ->
                 ConnectionValidationString.updateStatus("Server waiting on port $port...")
+
                 BleGattConnectionHandler.changeWifiCredential("ServerSocket")
-
-
                 val client = serverSocket.accept()
                 ConnectionValidationString.updateStatus("Client connected: ${client.inetAddress}")
                 client.tcpNoDelay = true
@@ -26,8 +24,6 @@ object ServerSocketGenerator {
                 client.sendBufferSize = 1024*1024
                 ReceiveFilePackets.receiveFilesOverSocket(client)
                 //socket will be closed in the ReceiveFilePackets
-
-                //after this is done serverSocket.close() will be called automatically
             }
 
         }

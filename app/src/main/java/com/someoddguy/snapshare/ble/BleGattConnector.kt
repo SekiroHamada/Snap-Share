@@ -168,6 +168,7 @@
         }
         @SuppressLint("MissingPermission")
         fun cancelConnection(){
+            cancelConnectionIndication()
             ConnectionValidationString.updateButtonClick(true)
             ConnectionValidationString.updateCancelStatus(true)
         }

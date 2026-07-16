@@ -1,5 +1,6 @@
 package com.someoddguy.snapshare.ui.homescreen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,12 @@ import com.someoddguy.snapshare.ui.homescreen.animateddropbox.UpwardArrow
 fun HomeScreen(
     navHostController: NavHostController=rememberNavController()
 ) {
+
+    BackHandler() {
+        FileTransferProgress.updateIsReceiving(false)
+        navHostController.popBackStack()
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = colorResource(R.color.black),
@@ -49,6 +56,7 @@ fun HomeScreen(
 
             Button(
                 onClick = {
+                    FileTransferProgress.updateIsReceiving(false)
                     navHostController.navigate(Routes.SendFileScreen) {}
                 },
                 colors = ButtonDefaults.buttonColors(
