@@ -97,8 +97,7 @@ fun ConnectionValidationScreen(
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorResource(R.color.teal_700),
-                    contentColor = colorResource(R.color.lightning)
-                ),
+                    contentColor = colorResource(R.color.lightning)),
                 modifier = Modifier
                     .padding(
                         start = 20.dp,

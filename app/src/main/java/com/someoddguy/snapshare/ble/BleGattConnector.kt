@@ -8,6 +8,7 @@
     import android.bluetooth.le.ScanResult
     import android.content.Context
     import com.someoddguy.snapshare.ble.BleConfig
+    import com.someoddguy.snapshare.filepackettransfer.SendFilePackets
     import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
     import com.someoddguy.snapshare.ui.searchbluetoothusers.SearchBluetoothUsers
     import com.someoddguy.snapshare.utils.showToast
@@ -144,7 +145,11 @@
                             }
                         }else if(valueString == "ServerSocket"){
                             WifiP2PClient.connectToGroupOwner()
-                        }else{
+                        }else if(valueString == "Cancel Transfer"){
+                            SendFilePackets.cancelTransfer()
+                            //TODO fix
+                        }
+                        else{
                             showToast("Received Unknown Indication!",true)
                         }
                     }
@@ -168,13 +173,13 @@
         }
         @SuppressLint("MissingPermission")
         fun cancelConnection(){
-            cancelConnectionIndication()
+            sendIndication("Cancel")
             ConnectionValidationString.updateButtonClick(true)
             ConnectionValidationString.updateCancelStatus(true)
         }
         @SuppressLint("MissingPermission")
-        fun cancelConnectionIndication(){
-            val message = "Cancel".toByteArray(Charsets.UTF_8)
+        fun sendIndication(msg:String){
+            val message = msg.toByteArray(Charsets.UTF_8)
             activeConnections.forEach { gatt ->
                 val service = gatt.getService(APP_SERVICE_UUID)
                 val characteristic = service?.getCharacteristic(DATA_CHARACTERISTIC_UUID)

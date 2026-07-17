@@ -1,27 +1,30 @@
 package com.someoddguy.snapshare.filepackettransfer
 
 import android.content.ContentValues
-import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import com.someoddguy.snapshare.globalcontext.GlobalContext
-import com.someoddguy.snapshare.navigation.Routes
-import com.someoddguy.snapshare.services.resetApp
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
-import com.someoddguy.snapshare.wifip2p.WifiP2PGenerator
+import com.someoddguy.snapshare.utils.CustomException
+import com.someoddguy.snapshare.utils.showToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.DataInputStream
+import java.io.IOException
 import java.net.Socket
 
 object ReceiveFilePackets {
     var lastProgressUpdateTime = System.currentTimeMillis()
+
+    var activeSocket :Socket? = null
+
     suspend fun receiveFilesOverSocket(socket: Socket) {
         val context = GlobalContext.appContext
         withContext(Dispatchers.IO) {
             try {
+                socket.soTimeout = 15000
                 FileTransferProgress.updateProgress(false)
                 ConnectionValidationString.updateStatus("Listening for incoming files...")
 
@@ -32,11 +35,13 @@ object ReceiveFilePackets {
 
                 // Read how many files are coming
                 val fileCount = inputStream.readInt()
-                //send it to the object
                 FileTransferProgress.updateTotalFiles(fileCount)
 
                 for (i in 0 until fileCount) {
-                    // Read metadata
+                    if(!socket.isConnected || socket.isClosed){
+                        throw CustomException("Socket Disconnected")
+                    }
+
                     val fileName = inputStream.readUTF()
                     val fileSize = inputStream.readLong()
 
@@ -58,16 +63,19 @@ object ReceiveFilePackets {
                         resolver.openOutputStream(uri)?.use { outputStream ->
                             val buffer = ByteArray(262144) // 8KB chunks
                             var totalRead = 0L
-                            // send it to the object
                             FileTransferProgress.updateFileSizeReceived(0L)
-                            // Read exact bytes for this specific file
                             while (totalRead < fileSize) {
+                                if(!socket.isConnected || socket.isClosed){
+                                    throw CustomException("Socket Disconnected")
+                                }
                                 // Calculate remaining bytes to ensure we don't bleed into the next file's data
                                 val remainingBytes = fileSize - totalRead
                                 val bytesToRead = minOf(buffer.size.toLong(), remainingBytes).toInt()
 
                                 val bytesRead = inputStream.read(buffer, 0, bytesToRead)
-                                if (bytesRead == -1) break // End of stream reached unexpectedly
+                                if (bytesRead == -1) {
+                                    throw IOException("Connection Broken")
+                                }
 
                                 outputStream.write(buffer, 0, bytesRead)
                                 totalRead += bytesRead
@@ -89,12 +97,17 @@ object ReceiveFilePackets {
                 ConnectionValidationString.updateStatus("All files received successfully!")
 
             } catch (e: Exception) {
-                ConnectionValidationString.updateStatus("Receive Error: ${e.localizedMessage}")
+                showToast("Socket Connection Interrupted. Rolling Back...",true)
             } finally {
                 socket.close()
-
-
             }
         }
+    }
+
+    fun cancelTransfer(){
+        runCatching {
+            activeSocket?.close()
+        }
+        activeSocket = null
     }
 }

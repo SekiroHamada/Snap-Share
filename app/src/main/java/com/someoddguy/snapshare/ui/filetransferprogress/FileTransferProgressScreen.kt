@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Surface
@@ -25,7 +28,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.services.resetApp
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
@@ -34,9 +39,10 @@ import com.someoddguy.snapshare.wifip2p.WifiP2PGenerator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@Preview
 @Composable
 fun FileTransferProgressScreen(
-    navHostController: NavHostController,
+    navHostController: NavHostController= rememberNavController(),
     viewModel: FileTransferProgressViewModel = viewModel()
 ){
     // Collect the single state object
@@ -97,7 +103,6 @@ fun FileTransferProgressScreen(
                 trackColor = ProgressIndicatorDefaults.linearTrackColor,
                 strokeCap = ProgressIndicatorDefaults.LinearStrokeCap
             )
-
             if(uiState.isDone){
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
@@ -121,7 +126,19 @@ fun FileTransferProgressScreen(
                                 popUpTo(0) { inclusive = true }
                             }
                         }
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(R.color.teal_700),
+                        contentColor = colorResource(R.color.lightning)),
+                    modifier = Modifier
+                        .padding(
+                            start = 20.dp,
+                            top = 20.dp,
+                            end = 20.dp,
+                            bottom = 10.dp)
+                        .width(260.dp)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     if(isButtonClicked){
                         Text("Processing...")
@@ -130,10 +147,27 @@ fun FileTransferProgressScreen(
                     }
 
                 }
+            }else{
+                Button(
+                    onClick = {
+
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                            containerColor = colorResource(R.color.teal_700),
+                    contentColor = colorResource(R.color.lightning)),
+                    modifier = Modifier
+                        .padding(
+                            start = 20.dp,
+                            top = 20.dp,
+                            end = 20.dp,
+                            bottom = 10.dp)
+                        .width(260.dp)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ){
+                    Text(if(uiState.cancelTransfer) "Processing" else "Cancel")
+                }
             }
         }
     }
-    // Example of how you use it going forward:
-    // Text(text = "Files remaining: ${uiState.totalFiles}")
-    // Text(text = "Current file: ${uiState.fileName}")
 }

@@ -59,6 +59,12 @@ object FileTransferProgress {
         _isDone.value = bool
     }
 
+    private val _cancelTransfer = MutableStateFlow(false)
+    val cancelTransfer : StateFlow<Boolean> = _cancelTransfer.asStateFlow()
+    fun updateCancelTransfer(bool: Boolean){
+        _cancelTransfer.value = bool
+    }
+
     fun resetProgress(){
         updateTotalFiles(0)
         updateFilesDone(0)
@@ -67,5 +73,6 @@ object FileTransferProgress {
         updateFileSize(0L)
         updateFileSizeReceived(0L)
         updateProgress(false)
+        updateCancelTransfer(false)
     }
 }

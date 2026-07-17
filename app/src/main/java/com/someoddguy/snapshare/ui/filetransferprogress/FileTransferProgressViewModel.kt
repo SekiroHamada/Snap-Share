@@ -14,7 +14,8 @@ data class TransferUiState(
     val fileName: String = "",
     val fileSize: Long = 0L,
     val fileSizeReceived: Long = 0L,
-    val isDone: Boolean = false
+    val isDone: Boolean = false,
+    val cancelTransfer : Boolean = false
 )
 
 class FileTransferProgressViewModel: ViewModel() {
@@ -27,7 +28,8 @@ class FileTransferProgressViewModel: ViewModel() {
         FileTransferProgress.fileName,
         FileTransferProgress.fileSize,
         FileTransferProgress.fileSizeReceived,
-        FileTransferProgress.isDone
+        FileTransferProgress.isDone,
+        FileTransferProgress.cancelTransfer
 
     ) { args ->
         // Cast the array elements by index to their respective types
@@ -38,7 +40,8 @@ class FileTransferProgressViewModel: ViewModel() {
             fileName = args[3] as String,
             fileSize = args[4] as Long,
             fileSizeReceived = args[5] as Long,
-            isDone = args[6] as Boolean
+            isDone = args[6] as Boolean,
+            cancelTransfer = args[7] as Boolean
         )
     }.stateIn(
         scope = viewModelScope,

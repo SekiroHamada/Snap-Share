@@ -16,6 +16,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresPermission
 import com.someoddguy.snapshare.ble.BleConfig
+import com.someoddguy.snapshare.filepackettransfer.ReceiveFilePackets
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.ui.receiveradvertiserscreen.ReceiverAdvertiser
 import com.someoddguy.snapshare.utils.showToast
@@ -189,6 +190,9 @@ object BleGattConnectionHandler {
                     }, 500L)
                     stopServer()
                     ConnectionValidationString.updateCancelStatus(true)
+                }else if(message == "Cancel Transfer"){
+                    ReceiveFilePackets.cancelTransfer()
+                    //TODO complete the reset
                 }
 
             }

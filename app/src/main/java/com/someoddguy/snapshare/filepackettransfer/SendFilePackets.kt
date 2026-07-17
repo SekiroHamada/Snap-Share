@@ -5,6 +5,8 @@ import android.provider.OpenableColumns
 import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
+import com.someoddguy.snapshare.utils.CustomException
+import com.someoddguy.snapshare.utils.showToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +17,8 @@ import java.io.DataOutputStream
 import java.net.Socket
 
 object SendFilePackets {
+
+    var activeSocket:Socket? = null
     private val _selectedFileUris = MutableStateFlow<List<Uri>>(emptyList())
     val selectedFileUris: StateFlow<List<Uri>> = _selectedFileUris.asStateFlow()
 
@@ -52,6 +56,9 @@ object SendFilePackets {
         val context = GlobalContext.appContext
         withContext(Dispatchers.IO) {
             try {
+                activeSocket = socket
+                socket.soTimeout = 15000
+
                 FileTransferProgress.updateProgress(false)
 
                 val uris = _selectedFileUris.value
@@ -72,6 +79,9 @@ object SendFilePackets {
                 FileTransferProgress.updateTotalFiles(uris.size)
 
                 for (uri in uris) {
+                    if(!socket.isConnected || socket.isClosed){
+                        throw CustomException("Socket Disconnected")
+                    }
                     var fileName = "SnapShare_File_${System.currentTimeMillis()}"
                     var fileSize = 0L
 
@@ -97,10 +107,15 @@ object SendFilePackets {
                     context.contentResolver.openInputStream(uri)?.use { inputStream ->
                         val buffer = ByteArray(262144) // 8KB chunks
                         var bytesRead: Int
-
                         while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+
+                            if(!socket.isConnected  || socket.isClosed){
+                                throw CustomException("Socket Disconnected")
+                            }
+
                             outputStream.write(buffer, 0, bytesRead)
-                            //file size sent
+                            //TODO
+                            //outputStream.flush()
                             bytesSent += bytesRead
                             val currentTime = System.currentTimeMillis()
                             if(currentTime - lastProgressUpdateTime > 50 ){
@@ -117,12 +132,19 @@ object SendFilePackets {
                 FileTransferProgress.updateProgress(true)
 
             } catch (e: Exception) {
-                ConnectionValidationString.updateStatus("Transfer Error: ${e.localizedMessage}")
+                showToast("Connection Dropped. Rollin Back",true)
             } finally {
-                // Ensure socket is closed after transfer is complete
                 socket.close()
 
             }
         }
+    }
+    fun cancelTransfer(){
+        //TODO
+        // BleGattConnector.sendIndication("Cancel Transfer")
+        runCatching {
+            activeSocket?.close()
+        }
+        activeSocket = null
     }
 }
