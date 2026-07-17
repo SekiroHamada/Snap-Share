@@ -1,5 +1,7 @@
 package com.someoddguy.snapshare.ui.filetransferprogress
 
+import BleGattConnector
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -33,9 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.services.resetApp
-import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
-import com.someoddguy.snapshare.wifip2p.WifiP2PClient
-import com.someoddguy.snapshare.wifip2p.WifiP2PGenerator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -60,6 +59,11 @@ fun FileTransferProgressScreen(
         str1 = "Sending"
         str2 = "Sent"
     }
+
+    BackHandler(enabled = true) {
+
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = colorResource(R.color.black),
@@ -70,12 +74,13 @@ fun FileTransferProgressScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("$str1 ${uiState.totalFiles} Files")
 
+
+            Text("$str1 ${uiState.totalFiles} File${if(uiState.totalFiles>1)"s" else ""}")
             Spacer(modifier = Modifier.height(16.dp))
-
-            Text("$str2 ${uiState.filesDone}/${uiState.totalFiles} File/s")
+            Text("$str2 ${uiState.filesDone}/${uiState.totalFiles} File${if (uiState.totalFiles > 1) "s" else ""}")
             Spacer(modifier = Modifier.height(8.dp))
+
 
             LinearProgressIndicator(
             progress = { uiState.filesDone.toFloat()/uiState.totalFiles.toFloat() },
@@ -88,11 +93,14 @@ fun FileTransferProgressScreen(
             strokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
             )
 
+
             Spacer(modifier = Modifier.height(32.dp))
-
-
-            Text("$str1 ${uiState.fileName} : ${uiState.fileSize/1024} MB")
+            Text("$str1 ${uiState.fileName}")
+            Spacer(modifier = Modifier.height(2.dp))
+            Text("${uiState.fileSize / 1024} MB")
             Spacer(modifier = Modifier.height(8.dp))
+
+
             LinearProgressIndicator(
                 progress = {uiState.fileSizeReceived.toFloat()/uiState.fileSize.toFloat()},
                 modifier = Modifier
@@ -110,18 +118,8 @@ fun FileTransferProgressScreen(
                     onClick = {
                         isButtonClicked = true
                         coroutineScope.launch{
-                            delay(3000L)
-                            ConnectionValidationString.resetValidation()
-                            if(uiState.isReceiving){
-                                WifiP2PGenerator.killAllWifiGeneratorConnections()
-
-                                resetApp()
-                            }else{
-                                WifiP2PClient.killAllWifiClientConnections()
-                                resetApp()
-                            }
-
-                            delay(1000L)
+                            resetApp()
+                            delay(500L)
                             navHostController.navigate(Routes.HomeScreen) {
                                 popUpTo(0) { inclusive = true }
                             }
@@ -149,8 +147,20 @@ fun FileTransferProgressScreen(
                 }
             }else{
                 Button(
+                    enabled = !uiState.cancelTransfer,
                     onClick = {
-
+                        coroutineScope.launch{
+                            if(uiState.isReceiving){
+                                BleGattConnectionHandler.sendIndication("Cancel Transfer")
+                            }else{
+                                BleGattConnector.sendIndication("Cancel Transfer")
+                            }
+                            resetApp()
+                            delay(500L)
+                            navHostController.navigate(Routes.HomeScreen) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(
                             containerColor = colorResource(R.color.teal_700),

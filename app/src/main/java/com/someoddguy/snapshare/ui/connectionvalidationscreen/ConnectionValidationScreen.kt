@@ -1,17 +1,16 @@
 package com.someoddguy.snapshare.ui.connectionvalidationscreen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,8 +29,6 @@ import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.services.resetApp
 import com.someoddguy.snapshare.ui.receiveradvertiserscreen.receivesvg.ReceiveSvg
-import com.someoddguy.snapshare.wifip2p.WifiP2PClient
-import com.someoddguy.snapshare.wifip2p.WifiP2PGenerator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -56,10 +53,8 @@ fun ConnectionValidationScreen(
                 delay(3000L)
                 if(uiState.isReceiving){
                     BleGattConnectionHandler.cancelConnection()
-                    WifiP2PGenerator.killAllWifiGeneratorConnections()
                 }else{
                     BleGattConnector.cancelConnection()
-                    WifiP2PClient.killAllWifiClientConnections()
                 }
                 resetApp()
                 delay(1000L)
@@ -70,6 +65,18 @@ fun ConnectionValidationScreen(
         }
     }
 
+    BackHandler() {
+        coroutineScope.launch{
+            delay(3000L)
+            if(uiState.isReceiving){
+                BleGattConnectionHandler.cancelConnection()
+            }else{
+                BleGattConnector.cancelConnection()
+            }
+            resetApp()
+        }
+        navHostController.popBackStack()
+    }
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = colorResource(R.color.black),

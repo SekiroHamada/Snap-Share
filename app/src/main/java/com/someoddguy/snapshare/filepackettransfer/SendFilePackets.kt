@@ -103,9 +103,8 @@ object SendFilePackets {
 
                     var bytesSent=0L
                     FileTransferProgress.updateFileSizeReceived(0L)
-                    // Stream the file bytes
                     context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                        val buffer = ByteArray(262144) // 8KB chunks
+                        val buffer = ByteArray(262144)
                         var bytesRead: Int
                         while (inputStream.read(buffer).also { bytesRead = it } != -1) {
 
@@ -140,8 +139,7 @@ object SendFilePackets {
         }
     }
     fun cancelTransfer(){
-        //TODO
-        // BleGattConnector.sendIndication("Cancel Transfer")
+        FileTransferProgress.updateCancelTransfer(true)
         runCatching {
             activeSocket?.close()
         }

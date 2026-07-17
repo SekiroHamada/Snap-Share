@@ -46,7 +46,6 @@ fun ReceiveFileScreen(
         }
     }
 
-    //Prompt Window code for gattServer receiving a connection
     if (viewModel.showConnectionDialog) {
         AlertDialog(
             onDismissRequest = {
@@ -72,7 +71,7 @@ fun ReceiveFileScreen(
                     Text("Remove")
                 }
             },
-            // This prevents the user from dismissing the dialog by tapping outside of it
+            // prevents the user from dismissing the dialog by tapping outside of it
             properties = DialogProperties(
                 dismissOnBackPress = false,
                 dismissOnClickOutside = false
@@ -118,10 +117,8 @@ fun ReceiveFileScreen(
             Button(
                 onClick = {
                     if (!isAdvertising) {
-                        // Permissions are now handled at Splash Screen
                         viewModel.startAdvertising()
                     } else {
-                        // Stop advertising
                         viewModel.stopAdvertising()
                     }
                 },

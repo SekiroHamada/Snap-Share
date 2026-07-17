@@ -105,6 +105,7 @@ object ReceiveFilePackets {
     }
 
     fun cancelTransfer(){
+        FileTransferProgress.updateCancelTransfer(true)
         runCatching {
             activeSocket?.close()
         }

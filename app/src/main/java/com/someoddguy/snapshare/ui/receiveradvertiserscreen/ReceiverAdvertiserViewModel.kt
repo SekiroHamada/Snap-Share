@@ -1,6 +1,5 @@
 package com.someoddguy.snapshare.ui.receiveradvertiserscreen
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue

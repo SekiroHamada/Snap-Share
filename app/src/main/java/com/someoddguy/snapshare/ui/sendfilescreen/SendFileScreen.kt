@@ -37,7 +37,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.someoddguy.snapshare.filepackettransfer.SendFilePackets
-import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
 
 @Preview
 @Composable
@@ -55,8 +54,8 @@ fun SendFileScreen(
     }
 
     BackHandler() {
-        navHostController.popBackStack()
         SendFilePackets.clearFiles()
+        navHostController.popBackStack()
     }
 
     Surface(
@@ -80,11 +79,10 @@ fun SendFileScreen(
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 24.dp), // Spacing between the cards and the button
-                    contentPadding = PaddingValues(horizontal = 16.dp), // Padding at the start/end of the scroll
-                    horizontalArrangement = Arrangement.spacedBy(12.dp) // Spacing between individual cards
+                        .padding(bottom = 24.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // This iterates through the List<Uri> and creates a FileCard for each
                     items(selectedFileUris) { uri ->
                         FileCard(
                             uri = uri,

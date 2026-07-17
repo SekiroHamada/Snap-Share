@@ -1,4 +1,3 @@
-
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
@@ -109,7 +108,7 @@ object BleGattConnectionHandler {
     }
 
     @SuppressLint("MissingPermission")
-    private fun sendIndication(message: String,targetDevice: BluetoothDevice? = null) {
+    fun sendIndication(message: String,targetDevice: BluetoothDevice? = null) {
         val data = message.toByteArray(Charsets.UTF_8)
         val characteristic = dataCharacteristic ?: return
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
@@ -253,4 +252,5 @@ object BleGattConnectionHandler {
         sendIndication("Cancel")
         stopServer()
     }
+
 }

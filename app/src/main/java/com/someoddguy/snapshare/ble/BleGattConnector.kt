@@ -165,7 +165,7 @@
             )
         }
 
-        fun clearAll() {
+        fun clearAllConnections() {
             // Remember to actually disconnect them before clearing!
             @SuppressLint("MissingPermission")
             activeConnections.forEach { it.disconnect() }

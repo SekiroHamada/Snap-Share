@@ -1,6 +1,5 @@
 package com.someoddguy.snapshare.ui.filetransferprogress
 
-import androidx.compose.runtime.State
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
