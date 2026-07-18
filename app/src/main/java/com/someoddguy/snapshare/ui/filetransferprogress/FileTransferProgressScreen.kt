@@ -2,13 +2,18 @@ package com.someoddguy.snapshare.ui.filetransferprogress
 
 import BleGattConnector
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -30,11 +35,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.services.resetApp
+import com.someoddguy.snapshare.ui.filetransferprogress.percentagebox.PercentageBox
+import com.someoddguy.snapshare.ui.filetransferprogress.rhombusshape.RhombusShape
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -48,7 +61,8 @@ fun FileTransferProgressScreen(
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     var isButtonClicked by remember { mutableStateOf(false) }
-
+    var percentageTotal= uiState.filesDone.toFloat()/uiState.totalFiles.toFloat()
+    var percentageFile = uiState.fileSizeReceived.toFloat()/uiState.fileSize.toFloat()
 
     var str1=""
     var str2=""
@@ -64,11 +78,15 @@ fun FileTransferProgressScreen(
 
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = colorResource(R.color.black),
-        contentColor = colorResource(R.color.white)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ){
+        Image(
+            painter = painterResource(id = R.drawable.paper_crush_background), // Replace with your filename
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -76,41 +94,51 @@ fun FileTransferProgressScreen(
         ) {
 
 
-            Text("$str1 ${uiState.totalFiles} File${if(uiState.totalFiles>1)"s" else ""}")
+            Text("$str1 ${uiState.totalFiles} File${if(uiState.totalFiles>1)"s" else ""}", fontSize = 25.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(2.dp))
+            Box(modifier = Modifier
+                .width(200.dp)
+                .height(2.dp)
+                .background(color = Color.Black))
             Spacer(modifier = Modifier.height(16.dp))
-            Text("$str2 ${uiState.filesDone}/${uiState.totalFiles} File${if (uiState.totalFiles > 1) "s" else ""}")
+            Text("$str2 ${uiState.filesDone}/${uiState.totalFiles} File${if (uiState.totalFiles > 1) "s" else ""}", fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
 
 
-            LinearProgressIndicator(
-            progress = { uiState.filesDone.toFloat()/uiState.totalFiles.toFloat() },
-            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                                .height(8.dp),
-            color = ProgressIndicatorDefaults.linearColor,
-            trackColor = ProgressIndicatorDefaults.linearTrackColor,
-            strokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
-            )
+            Row(horizontalArrangement = Arrangement.Center){
+                PercentageBox(percentageTotal,0.1f)
+                PercentageBox(percentageTotal,0.2f)
+                PercentageBox(percentageTotal,0.3f)
+                PercentageBox(percentageTotal,0.4f)
+                PercentageBox(percentageTotal,0.5f)
+                PercentageBox(percentageTotal,0.6f)
+                PercentageBox(percentageTotal,0.7f)
+                PercentageBox(percentageTotal,0.8f)
+                PercentageBox(percentageTotal,0.9f)
+                PercentageBox(percentageTotal,0.98f)
+            }
 
 
             Spacer(modifier = Modifier.height(32.dp))
-            Text("$str1 ${uiState.fileName}")
+            Text("${uiState.fileName}", fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(2.dp))
-            Text("${uiState.fileSize / 1024} MB")
+            Text("${uiState.fileSize / 1024} MB", fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
 
+            Row(horizontalArrangement = Arrangement.Center){
+                PercentageBox(percentageFile,0.1f)
+                PercentageBox(percentageFile,0.2f)
+                PercentageBox(percentageFile,0.3f)
+                PercentageBox(percentageFile,0.4f)
+                PercentageBox(percentageFile,0.5f)
+                PercentageBox(percentageFile,0.6f)
+                PercentageBox(percentageFile,0.7f)
+                PercentageBox(percentageFile,0.8f)
+                PercentageBox(percentageFile,0.9f)
+                PercentageBox(percentageFile,0.98f)
+            }
 
-            LinearProgressIndicator(
-                progress = {uiState.fileSizeReceived.toFloat()/uiState.fileSize.toFloat()},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .height(8.dp),
-                color = ProgressIndicatorDefaults.linearColor,
-                trackColor = ProgressIndicatorDefaults.linearTrackColor,
-                strokeCap = ProgressIndicatorDefaults.LinearStrokeCap
-            )
+
             if(uiState.isDone){
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
@@ -126,7 +154,7 @@ fun FileTransferProgressScreen(
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(R.color.teal_700),
+                        containerColor = colorResource(R.color.custom_gray),
                         contentColor = colorResource(R.color.lightning)),
                     modifier = Modifier
                         .padding(
@@ -163,7 +191,7 @@ fun FileTransferProgressScreen(
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
-                            containerColor = colorResource(R.color.teal_700),
+                            containerColor = colorResource(R.color.custom_gray),
                     contentColor = colorResource(R.color.lightning)),
                     modifier = Modifier
                         .padding(

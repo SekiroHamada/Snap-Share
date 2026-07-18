@@ -1,7 +1,9 @@
 package com.someoddguy.snapshare.ui.homescreen
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,12 +15,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,7 +35,6 @@ import com.someoddguy.snapshare.ui.homescreen.animateddropbox.UpwardArrow
 
 
 @Preview
-
 @Composable
 fun HomeScreen(
     navHostController: NavHostController=rememberNavController()
@@ -43,11 +45,16 @@ fun HomeScreen(
         navHostController.popBackStack()
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = colorResource(R.color.black),
-        contentColor = colorResource(R.color.white)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.paper_crush_background), // Replace with your filename
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
+
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -60,7 +67,7 @@ fun HomeScreen(
                     navHostController.navigate(Routes.SendFileScreen) {}
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(R.color.teal_700),
+                    containerColor = colorResource(R.color.custom_gray),
                     contentColor = colorResource(R.color.lightning)
                 ),
                 modifier = Modifier
@@ -93,7 +100,7 @@ fun HomeScreen(
                     navHostController.navigate(Routes.ReceiveFileScreen){}
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(R.color.teal_700),
+                    containerColor = colorResource(R.color.custom_gray),
                     contentColor = colorResource(R.color.lightning)
                 ),
                 modifier = Modifier

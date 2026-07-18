@@ -37,19 +37,20 @@ fun SearchDeviceCard(
             .border(
                 width = 2.dp,
                 color = colorResource(R.color.white),
-                shape = RoundedCornerShape(12.dp)
-            )
-            .padding(
-                top = 12.dp,
-                bottom = 12.dp,
-                start= 12.dp,
-                end = 12.dp)
+                shape = RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(12.dp))
             .clickable{onClick()},
         contentAlignment = Alignment.Center
     ){
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .background(color = colorResource(R.color.custom_gray))
+                .padding(
+                    top = 12.dp,
+                    bottom = 12.dp,
+                    start= 12.dp,
+                    end = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 

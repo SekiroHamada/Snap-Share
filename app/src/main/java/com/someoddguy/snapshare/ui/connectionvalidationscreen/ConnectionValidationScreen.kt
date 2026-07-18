@@ -1,7 +1,9 @@
 package com.someoddguy.snapshare.ui.connectionvalidationscreen
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +22,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -77,11 +81,15 @@ fun ConnectionValidationScreen(
         }
         navHostController.popBackStack()
     }
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = colorResource(R.color.black),
-        contentColor = colorResource(R.color.white)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ){
+        Image(
+            painter = painterResource(id = R.drawable.paper_crush_background), // Replace with your filename
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -103,7 +111,7 @@ fun ConnectionValidationScreen(
                     ConnectionValidationString.updateCancelStatus(true)
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(R.color.teal_700),
+                    containerColor = colorResource(R.color.custom_gray),
                     contentColor = colorResource(R.color.lightning)),
                 modifier = Modifier
                     .padding(

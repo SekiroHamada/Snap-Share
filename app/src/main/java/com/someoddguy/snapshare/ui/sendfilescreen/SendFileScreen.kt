@@ -4,7 +4,9 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -33,6 +35,8 @@ import com.someoddguy.snapshare.ui.sendfilescreen.filecard.FileCard
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
@@ -58,11 +62,16 @@ fun SendFileScreen(
         navHostController.popBackStack()
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = colorResource(R.color.black),
-        contentColor = colorResource(R.color.white)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.paper_crush_background), // Replace with your filename
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
+
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -100,7 +109,7 @@ fun SendFileScreen(
                     filePickerLauncher.launch("*/*")
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(R.color.teal_700),
+                    containerColor = colorResource(R.color.custom_gray),
                     contentColor = colorResource(R.color.lightning)
                 ),
                 modifier = Modifier
@@ -124,7 +133,7 @@ fun SendFileScreen(
                         navHostController.navigate(Routes.SearchBluetoothUsers) {}
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(R.color.teal_700),
+                        containerColor = colorResource(R.color.custom_gray),
                         contentColor = colorResource(R.color.lightning)
                     ),
                     modifier = Modifier

@@ -2,6 +2,7 @@ package com.someoddguy.snapshare.ui.searchbluetoothusers
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -10,13 +11,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -47,11 +49,16 @@ fun SearchBluetoothUsers(
         viewModel.stopBleScan()
         navHostController.popBackStack()
     }
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = colorResource(R.color.black),
-        contentColor = colorResource(R.color.white)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.paper_crush_background), // Replace with your filename
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -64,13 +71,6 @@ fun SearchBluetoothUsers(
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
-                    .then(
-                        if (scanResults.isNotEmpty()) {
-                            Modifier.background(color = Color.Black.copy(alpha = 0.5f))
-                        } else {
-                            Modifier
-                        }
-                    )
                     .padding(all = 5.dp)
             ) {
                 items(
@@ -88,8 +88,14 @@ fun SearchBluetoothUsers(
                 }
             }
 
-            Spacer(modifier = Modifier.height(30.dp))
-
+            Spacer(modifier = Modifier.height(15.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(Color.Black)
+            )
+            Spacer(modifier = Modifier.height(15.dp))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -105,7 +111,7 @@ fun SearchBluetoothUsers(
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(R.color.teal_700),
+                        containerColor = colorResource(R.color.custom_gray),
                         contentColor = colorResource(R.color.lightning)
                     ),
                     modifier = Modifier

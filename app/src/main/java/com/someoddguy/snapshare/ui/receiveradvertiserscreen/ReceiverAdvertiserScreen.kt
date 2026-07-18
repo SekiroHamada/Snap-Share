@@ -1,6 +1,7 @@
 package com.someoddguy.snapshare.ui.receiveradvertiserscreen
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -17,7 +18,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -94,15 +97,20 @@ fun ReceiveFileScreen(
         navHostController.popBackStack()
     }
 
-    Surface(
+    Box(
         modifier = Modifier.fillMaxSize()
         .indication(
             interactionSource = interactionSource,
             indication = ripple()
-        ),
-        color = colorResource(R.color.black),
-        contentColor = colorResource(R.color.white)
+        )
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.paper_crush_background), // Replace with your filename
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
+
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -123,7 +131,7 @@ fun ReceiveFileScreen(
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(R.color.teal_700),
+                    containerColor = colorResource(R.color.custom_gray),
                     contentColor = colorResource(R.color.lightning)
                 ),
                 modifier = Modifier
