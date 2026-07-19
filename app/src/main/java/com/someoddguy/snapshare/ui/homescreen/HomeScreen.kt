@@ -95,7 +95,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(5.dp))
             Box(modifier = Modifier
                 .height(1.dp)
-                .width(320.dp)
+                .width(32.dp)
                 .background(color = colorResource(R.color.lightning)))
             Spacer(modifier = Modifier.height(5.dp))
 
