@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import com.someoddguy.snapshare.globalcontext.GlobalContext
+import com.someoddguy.snapshare.services.FileTransferService
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
 import com.someoddguy.snapshare.utils.CustomException
@@ -22,7 +23,11 @@ object ReceiveFilePackets {
 
     suspend fun receiveFilesOverSocket(socket: Socket) {
         val context = GlobalContext.appContext
+
+        activeSocket = socket
+
         withContext(Dispatchers.IO) {
+            var currentFileUri: android.net.Uri? = null
             try {
                 socket.soTimeout = 15000
                 FileTransferProgress.updateProgress(false)
@@ -59,6 +64,8 @@ object ReceiveFilePackets {
                     val resolver = context.contentResolver
                     val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
 
+                    currentFileUri = uri
+
                     if (uri != null) {
                         resolver.openOutputStream(uri)?.use { outputStream ->
                             val buffer = ByteArray(262144) // 8KB chunks
@@ -87,6 +94,7 @@ object ReceiveFilePackets {
                             }
                             outputStream.flush()
                         }
+                        currentFileUri = null
                         ConnectionValidationString.updateStatus("Saved: $fileName in Downloads")
                         FileTransferProgress.updateFilesDone()
                     } else {
@@ -97,6 +105,11 @@ object ReceiveFilePackets {
                 ConnectionValidationString.updateStatus("All files received successfully!")
 
             } catch (e: Exception) {
+                currentFileUri?.let { uri ->
+                    runCatching {
+                        context.contentResolver.delete(uri, null, null)
+                    }
+                }
                 showToast("Socket Connection Interrupted. Rolling Back...",true)
             } finally {
                 socket.close()

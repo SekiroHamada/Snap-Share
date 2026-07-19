@@ -28,7 +28,7 @@ class FileTransferService : Service() {
     private val notificationManager = (GlobalContext.appContext).getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     companion object {
-        private const val CHANNEL_ID = "file_transfer_channel"
+        const val CHANNEL_ID = "file_transfer_channel"
         private const val NOTIFICATION_ID = 1
 
         // Helper to easily start the service from anywhere
@@ -46,11 +46,12 @@ class FileTransferService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createNotificationChannel()
+        val status = if(FileTransferProgress.isReceiving.value) "Receiving" else "Sending"
         val notification = NotificationCompat.Builder(GlobalContext.appContext,CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_file)
-            .setContentTitle("File Transfer")
-            .setContentText("Starting File Transfer")
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setSmallIcon(R.drawable.app_logo)
+            .setContentTitle("SnapShare")
+            .setContentText("$status Files")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .build()
 
@@ -65,79 +66,7 @@ class FileTransferService : Service() {
         } else {
             startForeground(NOTIFICATION_ID, notification)
         }
-
-        observeTransferProgress()
         return START_NOT_STICKY
-    }
-
-    private fun observeTransferProgress() {
-        serviceScope.launch {
-            var lastUpdateTime =0L
-
-            combine<Any, TransferState>(
-                FileTransferProgress.fileName,
-                FileTransferProgress.filesDone,
-                FileTransferProgress.totalFiles,
-                FileTransferProgress.isReceiving,
-                FileTransferProgress.isDone
-            ) {args->
-                TransferState(
-                    name = args[0] as String,
-                    done = args[1] as Int,
-                    total = args[2] as Int,
-                    isReceiving = args[3] as Boolean,
-                    isDone = args[4] as Boolean
-
-                )
-            }.collect { state ->
-
-                if (state.isDone) {
-                    // Show a completion notification that sticks around after the service dies
-                    val isReceiving = if (state.isReceiving) "Received" else "Sent"
-
-                    val notification = NotificationCompat.Builder(GlobalContext.appContext,CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_file)
-                        .setContentTitle("Transfer Complete")
-                        .setContentText("All files ${isReceiving} successfully!")
-                        .setPriority(NotificationCompat.PRIORITY_LOW)
-                        .setAutoCancel(true)
-                        .build()
-
-                    notificationManager.notify(NOTIFICATION_ID, notification)
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        stopForeground(STOP_FOREGROUND_REMOVE)
-                    } else {
-                        // For older devices, safely use the legacy boolean method
-                        @Suppress("DEPRECATION")
-                        stopForeground(true)
-                    }
-
-                    stopSelf() // Kills the service when transfer is complete
-                    return@collect
-                }
-
-                // Calculate both progress values (0 to 100)
-                val overallProgress = if (state.total > 0) ((state.done.toFloat() / state.total.toFloat()) * 100).toInt() else 0
-                val currentTime = System.currentTimeMillis()
-
-                if (currentTime - lastUpdateTime < 500 && overallProgress < 100) {
-                    return@collect // Silently ignore the update so we don't spam the OS
-                }
-                //otherwise send the notification
-                lastUpdateTime = currentTime
-
-                val isReceiving = if(state.isReceiving) "Receiving" else "Sending"
-                val progressNotification = NotificationCompat.Builder(GlobalContext.appContext,CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_file)
-                    .setContentTitle("Transfer in progress")
-                    .setContentText("$isReceiving File(s)")
-                    .setAutoCancel(true)
-                    .setProgress(state.total, state.done, false)
-                    .build()
-                notificationManager.notify(NOTIFICATION_ID,progressNotification)
-            }
-        }
     }
 
 

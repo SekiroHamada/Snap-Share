@@ -44,6 +44,20 @@ fun ConnectionValidationScreen(
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
+    BackHandler() {
+        coroutineScope.launch{
+            delay(3000L)
+            if(uiState.isReceiving){
+                BleGattConnectionHandler.cancelConnection()
+            }else{
+                BleGattConnector.cancelConnection()
+            }
+            resetApp()
+        }
+        navHostController.popBackStack()
+    }
+
+
     LaunchedEffect(uiState.initiateTransfer) {
         if (uiState.initiateTransfer) {
             navHostController.navigate(Routes.FileTransferProgressScreen) {}
@@ -69,18 +83,7 @@ fun ConnectionValidationScreen(
         }
     }
 
-    BackHandler() {
-        coroutineScope.launch{
-            delay(3000L)
-            if(uiState.isReceiving){
-                BleGattConnectionHandler.cancelConnection()
-            }else{
-                BleGattConnector.cancelConnection()
-            }
-            resetApp()
-        }
-        navHostController.popBackStack()
-    }
+
     Box(
         modifier = Modifier.fillMaxSize()
     ){

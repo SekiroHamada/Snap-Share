@@ -54,6 +54,9 @@ object SendFilePackets {
     var lastProgressUpdateTime = System.currentTimeMillis()
     suspend fun sendFilesOverSocket(socket: Socket) {
         val context = GlobalContext.appContext
+
+
+
         withContext(Dispatchers.IO) {
             try {
                 activeSocket = socket

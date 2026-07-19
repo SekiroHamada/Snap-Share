@@ -1,6 +1,8 @@
 package com.someoddguy.snapshare.ui.filetransferprogress
 
 import BleGattConnector
+import android.app.NotificationManager
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.someoddguy.snapshare.R
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,8 +46,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationCompat
 import androidx.navigation.compose.rememberNavController
+import com.someoddguy.snapshare.globalcontext.GlobalContext
 import com.someoddguy.snapshare.navigation.Routes
+import com.someoddguy.snapshare.services.FileTransferService
 import com.someoddguy.snapshare.services.resetApp
 import com.someoddguy.snapshare.ui.filetransferprogress.percentagebox.PercentageBox
 import com.someoddguy.snapshare.ui.filetransferprogress.rhombusshape.RhombusShape
@@ -61,8 +67,8 @@ fun FileTransferProgressScreen(
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     var isButtonClicked by remember { mutableStateOf(false) }
-    var percentageTotal= uiState.filesDone.toFloat()/uiState.totalFiles.toFloat()
-    var percentageFile = uiState.fileSizeReceived.toFloat()/uiState.fileSize.toFloat()
+    val percentageTotal= uiState.filesDone.toFloat()/uiState.totalFiles.toFloat()
+    val percentageFile = uiState.fileSizeReceived.toFloat()/uiState.fileSize.toFloat()
 
     var str1=""
     var str2=""
@@ -77,7 +83,37 @@ fun FileTransferProgressScreen(
     BackHandler(enabled = true) {
 
     }
-
+    LaunchedEffect(uiState.isDone) {
+        if(uiState.isDone){
+            val context = GlobalContext.appContext
+            val status = if(uiState.isReceiving) "Received" else "Sent"
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notification = NotificationCompat.Builder(context, FileTransferService.CHANNEL_ID)
+                .setSmallIcon(R.drawable.app_logo)
+                .setContentTitle("SnapShare")
+                .setContentText("Files Successfully $status")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true)
+                .build()
+            notificationManager.notify(1,notification)
+        }
+    }
+    LaunchedEffect(uiState.cancelTransfer) {
+        if(uiState.cancelTransfer){
+            coroutineScope.launch{
+                if(uiState.isReceiving){
+                    BleGattConnectionHandler.sendIndication("Cancel Transfer")
+                }else{
+                    BleGattConnector.sendIndication("Cancel Transfer")
+                }
+                resetApp()
+                delay(500L)
+                navHostController.navigate(Routes.HomeScreen) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        }
+    }
     Box(
         modifier = Modifier.fillMaxSize()
     ){
@@ -189,6 +225,7 @@ fun FileTransferProgressScreen(
                                 popUpTo(0) { inclusive = true }
                             }
                         }
+
                     },
                     colors = ButtonDefaults.buttonColors(
                             containerColor = colorResource(R.color.custom_gray),
