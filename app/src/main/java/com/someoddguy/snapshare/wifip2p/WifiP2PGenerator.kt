@@ -107,11 +107,6 @@ object WifiP2PGenerator {
             return
         }
         ConnectionValidationString.updateStatus("Creating Wifi Group...")
-        //for notification as well as foreground process
-        //TODO Fix notification
-        FileTransferService.startService(GlobalContext.appContext)
-
-
 
         manager?.createGroup(channel, object : WifiP2pManager.ActionListener {
             @SuppressLint("MissingPermission")

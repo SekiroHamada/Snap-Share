@@ -23,8 +23,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -47,6 +50,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.someoddguy.snapshare.R
 import com.someoddguy.snapshare.navigation.Routes
 import kotlinx.coroutines.delay
@@ -66,10 +70,9 @@ fun Context.ungrantedPermissions(permissions: Array<String>): Array<String> {
     }.toTypedArray()
 }
 
-
 @Composable
 fun SplashScreen(
-    navHostController: NavHostController,
+    navHostController: NavHostController = rememberNavController(),
     viewModel: SplashScreenViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -272,7 +275,20 @@ fun SplashScreen(
                         } else {
                             permissionLauncher.launch(ungranted)
                         }
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(R.color.custom_gray),
+                        contentColor = colorResource(R.color.lightning)
+                    ),
+                    modifier = Modifier
+                        .padding(
+                            start = 20.dp,
+                            top = 20.dp,
+                            end = 20.dp,
+                            bottom = 10.dp)
+                        .width(260.dp)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text("Grant Permissions & Continue")
                 }

@@ -1,6 +1,8 @@
 package com.someoddguy.snapshare.wifip2p
 
 import com.someoddguy.snapshare.filepackettransfer.ReceiveFilePackets
+import com.someoddguy.snapshare.globalcontext.GlobalContext
+import com.someoddguy.snapshare.services.FileTransferService
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +15,8 @@ object ServerSocketGenerator {
         CoroutineScope(Dispatchers.IO).launch {
             ServerSocket(port).use { serverSocket ->
                 ConnectionValidationString.updateStatus("Server waiting on port $port...")
+
+                FileTransferService.startService(GlobalContext.appContext)
 
                 BleGattConnectionHandler.changeWifiCredential("ServerSocket")
                 val client = serverSocket.accept()

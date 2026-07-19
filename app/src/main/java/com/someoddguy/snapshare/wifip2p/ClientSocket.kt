@@ -2,6 +2,8 @@ package com.someoddguy.snapshare.wifip2p
 
 import android.net.Network
 import com.someoddguy.snapshare.filepackettransfer.SendFilePackets
+import com.someoddguy.snapshare.globalcontext.GlobalContext
+import com.someoddguy.snapshare.services.FileTransferService
 import com.someoddguy.snapshare.ui.connectionvalidationscreen.ConnectionValidationString
 import com.someoddguy.snapshare.utils.CustomException
 import kotlinx.coroutines.CoroutineScope
@@ -19,6 +21,9 @@ object ClientSocket {
         /*TODO change the port*/
         port: Int=7878,
         tries: Int=2){
+
+        FileTransferService.startService(GlobalContext.appContext)
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 if(tries == 0){

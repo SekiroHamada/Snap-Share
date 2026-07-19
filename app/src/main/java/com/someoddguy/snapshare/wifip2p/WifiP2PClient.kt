@@ -44,10 +44,6 @@ object WifiP2PClient {
 
         ConnectionValidationString.updateStatus("Joining Wi-Fi Network : $SSID")
 
-        //TODO fix notification
-        //TODO for notification as well as foreground process
-
-        FileTransferService.startService(GlobalContext.appContext)
 
         // Request the connection
         networkCallback = object : ConnectivityManager.NetworkCallback() {
