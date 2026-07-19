@@ -240,7 +240,7 @@ fun SplashScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.paper_crush_background), // Replace with your filename
+            painter = painterResource(id = R.drawable.app_background), // Replace with your filename
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.FillBounds

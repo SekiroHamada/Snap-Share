@@ -2,6 +2,7 @@ package com.someoddguy.snapshare.ui.homescreen
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,7 +50,7 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.paper_crush_background), // Replace with your filename
+            painter = painterResource(id = R.drawable.app_background), // Replace with your filename
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.FillBounds
@@ -76,8 +77,8 @@ fun HomeScreen(
                         top = 20.dp,
                         end = 20.dp,
                         bottom = 10.dp)
-                    .fillMaxWidth()
-                    .height(100.dp),
+                    .width(300.dp)
+                    .height(90.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Row(
@@ -91,7 +92,12 @@ fun HomeScreen(
             }
 
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(5.dp))
+            Box(modifier = Modifier
+                .height(1.dp)
+                .width(320.dp)
+                .background(color = colorResource(R.color.lightning)))
+            Spacer(modifier = Modifier.height(5.dp))
 
 
             Button(
@@ -109,8 +115,8 @@ fun HomeScreen(
                         top = 10.dp,
                         end =20.dp,
                         bottom = 20.dp)
-                    .fillMaxWidth()
-                    .height(100.dp),
+                    .width(300.dp)
+                    .height(90.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Row(

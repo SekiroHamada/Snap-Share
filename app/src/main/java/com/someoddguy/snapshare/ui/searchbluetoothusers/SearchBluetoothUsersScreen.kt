@@ -53,7 +53,7 @@ fun SearchBluetoothUsers(
         modifier = Modifier.fillMaxSize()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.paper_crush_background), // Replace with your filename
+            painter = painterResource(id = R.drawable.app_background), // Replace with your filename
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.FillBounds
@@ -93,7 +93,7 @@ fun SearchBluetoothUsers(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(Color.Black)
+                    .background(color = colorResource(R.color.lightning))
             )
             Spacer(modifier = Modifier.height(15.dp))
             Row(
