@@ -43,7 +43,6 @@ fun HomeScreen(
 
     BackHandler() {
         FileTransferProgress.updateIsReceiving(false)
-        navHostController.popBackStack()
     }
 
     Box(
