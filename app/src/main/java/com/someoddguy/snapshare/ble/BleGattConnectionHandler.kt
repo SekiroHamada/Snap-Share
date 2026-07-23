@@ -209,7 +209,10 @@ object BleGattConnectionHandler {
                 if (responseNeeded) {
                     gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value)
                 }
-                if(value != null && value.contentEquals(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE))
+                //TODO change this code
+                //addDevice(device)
+                //sendIndication("SendName",device)
+                if(value != null && value.contentEquals(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE)) {
                     Handler(Looper.getMainLooper()).post {
                         onConnectionPromptRequested?.invoke(
                             device.address,
@@ -217,7 +220,7 @@ object BleGattConnectionHandler {
                                 addDevice(device)
                                 ConnectionValidationString.updateStart(true)
                                 ConnectionValidationString.updateStatus("Connected to Central ${device.address}")
-                                sendIndication("ACCEPTED")
+                                sendIndication("ACCEPTED",device)
                             },
                             { // --- onRemove Clicked ---
                                 showToast("Connection rejected: ${device.address}", true)
@@ -231,7 +234,7 @@ object BleGattConnectionHandler {
                             }
                         )
                     }
-
+                }
             }
         }
     }
