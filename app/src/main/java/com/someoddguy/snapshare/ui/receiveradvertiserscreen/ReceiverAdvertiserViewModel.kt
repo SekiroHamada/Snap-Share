@@ -53,7 +53,7 @@ class ReceiverAdvertiserViewModel : ViewModel() {
         showConnectionDialog = false
         pendingKeepAction = null
         pendingRemoveAction = null
-        connectingDeviceAddress = ""
+        connectingDeviceBleName = ""
     }
 
     override fun onCleared() {
