@@ -57,7 +57,7 @@ fun ReceiveFileScreen(
                 Text(text = "Incoming Connection")
             },
             text = {
-                Text(text = "Device ${viewModel.connectingDeviceAddress} wants to connect. Do you want to keep this connection?")
+                Text(text = "Device ${viewModel.connectingDeviceBleName} wants to connect. Do you want to keep this connection?")
             },
             confirmButton = {
                 Button(

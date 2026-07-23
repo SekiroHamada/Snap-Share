@@ -183,17 +183,41 @@ object BleGattConnectionHandler {
                     gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value)
                 }
                 val message = value?.let{String(it, Charsets.UTF_8)}
-                if(message == "Cancel"){
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        gattServer?.cancelConnection(device)
-                    }, 500L)
-                    stopServer()
-                    ConnectionValidationString.updateCancelStatus(true)
-                }else if(message == "Cancel Transfer"){
-                    ReceiveFilePackets.cancelTransfer()
-                    //TODO complete the reset
-                }
+                if(message != null){
+                    if(message.contains(":")){
+                        val credentials = message.split(":")
+                        val bleName = credentials[1]
+                        Handler(Looper.getMainLooper()).post {
+                            onConnectionPromptRequested?.invoke(
+                                bleName,
+                                { // --- onKeep Clicked ---
+                                    ConnectionValidationString.updateStart(true)
+                                    ConnectionValidationString.updateStatus("Connected to Central ${device.address}")
+                                    sendIndication("ACCEPTED",device)
+                                },
+                                { // --- onRemove Clicked ---
+                                    removeDevice(device)
+                                    showToast("Connection rejected: ${device.address}", true)
+                                    sendIndication("DENIED", device)
 
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        gattServer?.cancelConnection(device)
+                                    }, 500L)
+                                    ReceiverAdvertiser.startAdvertising()
+                                }
+                            )
+                        }
+                    }else if(message == "Cancel"){
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            gattServer?.cancelConnection(device)
+                        }, 500L)
+                        stopServer()
+                        ConnectionValidationString.updateCancelStatus(true)
+                    }else if(message == "Cancel Transfer"){
+                        ReceiveFilePackets.cancelTransfer()
+                        //TODO complete the reset
+                    }
+                }
             }
 
         }
@@ -209,32 +233,12 @@ object BleGattConnectionHandler {
                 if (responseNeeded) {
                     gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value)
                 }
-                //TODO change this code
-                //addDevice(device)
-                //sendIndication("SendName",device)
                 if(value != null && value.contentEquals(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE)) {
-                    Handler(Looper.getMainLooper()).post {
-                        onConnectionPromptRequested?.invoke(
-                            device.address,
-                            { // --- onKeep Clicked ---
-                                addDevice(device)
-                                ConnectionValidationString.updateStart(true)
-                                ConnectionValidationString.updateStatus("Connected to Central ${device.address}")
-                                sendIndication("ACCEPTED",device)
-                            },
-                            { // --- onRemove Clicked ---
-                                showToast("Connection rejected: ${device.address}", true)
-
-                                sendIndication("DENIED", device)
-
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    gattServer?.cancelConnection(device)
-                                }, 500L)
-                                ReceiverAdvertiser.startAdvertising()
-                            }
-                        )
-                    }
+                    //TODO change this code
+                    addDevice(device)
+                    sendIndication("SendName",device)
                 }
+
             }
         }
     }

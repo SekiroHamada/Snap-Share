@@ -118,7 +118,10 @@
                     if (valueBytes != null) {
                         val valueString = String(valueBytes, Charsets.UTF_8)
 
-                        if (valueString == "DENIED") {
+                        if(valueString == "SendName"){
+                            gatt.requestMtu(517)
+                            sendIndication("BluetoothUserName:" + BleConfig.BluetoothUserName)
+                        }else if (valueString == "DENIED") {
                             showToast("Connection rejected by host. Disconnecting...", true)
                             removeConnection(gatt)
                             gatt.disconnect()
@@ -126,7 +129,6 @@
                             SearchBluetoothUsers.startBleScan(context)
                         }else if(valueString == "ACCEPTED"){
                             ConnectionValidationString.updateStart(true)
-                            gatt.requestMtu(517)
                             ConnectionValidationString.updateStatus("Connected to Central")
                         }else if(valueString == "Cancel"){
                             removeConnection(gatt)

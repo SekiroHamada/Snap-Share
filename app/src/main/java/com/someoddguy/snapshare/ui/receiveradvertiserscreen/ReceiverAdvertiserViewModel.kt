@@ -21,8 +21,8 @@ class ReceiverAdvertiserViewModel : ViewModel() {
     var showConnectionDialog by mutableStateOf(false)
         private set
 
-    // State to hold the incoming device address for the UI
-    var connectingDeviceAddress by mutableStateOf("")
+    // State to hold the incoming device name for the UI
+    var connectingDeviceBleName by mutableStateOf("")
         private set
 
     // Temporary variables to hold the callbacks from the BLE Handler
@@ -30,9 +30,9 @@ class ReceiverAdvertiserViewModel : ViewModel() {
     private var pendingRemoveAction: (() -> Unit)? = null
 
     init {
-        BleGattConnectionHandler.onConnectionPromptRequested = { address, onKeep, onRemove ->
+        BleGattConnectionHandler.onConnectionPromptRequested = { bleName, onKeep, onRemove ->
             // Update state to trigger the Compose dialog
-            connectingDeviceAddress = address
+            connectingDeviceBleName = bleName
             pendingKeepAction = onKeep
             pendingRemoveAction = onRemove
             showConnectionDialog = true
