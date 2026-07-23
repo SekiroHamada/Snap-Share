@@ -81,7 +81,8 @@ fun SendFileScreen(
                     text = "${selectedFileUris.size} Files Selected",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    color = colorResource(id = R.color.lightning)
                 )
 
                 LazyRow(

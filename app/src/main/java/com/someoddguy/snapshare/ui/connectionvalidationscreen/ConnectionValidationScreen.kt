@@ -101,7 +101,10 @@ fun ConnectionValidationScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = uiState.statusString)
+            Text(
+                text = uiState.statusString,
+                color = colorResource(id = R.color.lightning)
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 

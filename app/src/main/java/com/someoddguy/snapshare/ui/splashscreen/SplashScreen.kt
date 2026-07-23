@@ -252,6 +252,7 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+
             Text(
                 text = "SnapShare",
                 fontSize = 50.sp,
@@ -259,10 +260,24 @@ fun SplashScreen(
                 fontFamily = FontFamily.Monospace,
                 color = colorResource(id = R.color.lightning)
             )
+
             Spacer(modifier = Modifier.height(28.dp))
-            Text(text = "By", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+
+            Text(
+                text = "By",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = colorResource(id = R.color.lightning)
+            )
+
             Spacer(modifier = Modifier.height(7.dp))
-            Text(text = "Some Odd Guy", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+
+            Text(
+                text = "Some Odd Guy",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = colorResource(id = R.color.lightning)
+            )
 
             if (showRetryButton) {
                 Spacer(modifier = Modifier.height(40.dp))

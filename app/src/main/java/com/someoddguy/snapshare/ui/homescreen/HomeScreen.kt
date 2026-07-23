@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -23,23 +22,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.someoddguy.snapshare.R
+import com.someoddguy.snapshare.ble.BleConfig
 import com.someoddguy.snapshare.navigation.Routes
 import com.someoddguy.snapshare.ui.filetransferprogress.FileTransferProgress
 import com.someoddguy.snapshare.ui.homescreen.animateddropbox.DownwardArrow
 import com.someoddguy.snapshare.ui.homescreen.animateddropbox.UpwardArrow
 
 
-@Preview
 @Composable
 fun HomeScreen(
-    navHostController: NavHostController=rememberNavController()
+    navHostController: NavHostController
 ) {
+
+    BleConfig.getBluetoothUserName()
 
     BackHandler() {
         FileTransferProgress.updateIsReceiving(false)
@@ -94,7 +93,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(5.dp))
             Box(modifier = Modifier
                 .height(1.dp)
-                .width(32.dp)
+                .width(320.dp)
                 .background(color = colorResource(R.color.lightning)))
             Spacer(modifier = Modifier.height(5.dp))
 
