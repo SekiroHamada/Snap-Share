@@ -123,14 +123,24 @@ fun FileTransferProgressScreen(
         ) {
 
 
-            Text("$str1 ${uiState.totalFiles} File${if(uiState.totalFiles>1)"s" else ""}", fontSize = 25.sp, fontWeight = FontWeight.Bold)
+            Text("$str1 ${uiState.totalFiles} File${if(uiState.totalFiles>1)"s" else ""}",
+                fontSize = 25.sp,
+                fontWeight = FontWeight.Bold,
+                color = colorResource(R.color.lightning))
+
             Spacer(modifier = Modifier.height(2.dp))
+
             Box(modifier = Modifier
                 .width(200.dp)
                 .height(2.dp)
-                .background(color = Color.Black))
+                .background(colorResource(R.color.lightning)))
+
             Spacer(modifier = Modifier.height(16.dp))
-            Text("$str2 ${uiState.filesDone}/${uiState.totalFiles} File${if (uiState.totalFiles > 1) "s" else ""}", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+
+            Text("$str2 ${uiState.filesDone}/${uiState.totalFiles} File${if (uiState.totalFiles > 1) "s" else ""}",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = colorResource(R.color.lightning))
             Spacer(modifier = Modifier.height(8.dp))
 
 
@@ -147,26 +157,36 @@ fun FileTransferProgressScreen(
                 PercentageBox(percentageTotal,0.98f)
             }
 
+            if(!uiState.isDone){
+                Spacer(modifier = Modifier.height(32.dp))
 
-            Spacer(modifier = Modifier.height(32.dp))
-            Text("${uiState.fileName}", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(2.dp))
-            Text("${uiState.fileSize / 1024} MB", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(8.dp))
+                Text("${uiState.fileName}",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = colorResource(R.color.lightning))
 
-            Row(horizontalArrangement = Arrangement.Center){
-                PercentageBox(percentageFile,0.1f)
-                PercentageBox(percentageFile,0.2f)
-                PercentageBox(percentageFile,0.3f)
-                PercentageBox(percentageFile,0.4f)
-                PercentageBox(percentageFile,0.5f)
-                PercentageBox(percentageFile,0.6f)
-                PercentageBox(percentageFile,0.7f)
-                PercentageBox(percentageFile,0.8f)
-                PercentageBox(percentageFile,0.9f)
-                PercentageBox(percentageFile,0.98f)
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text("${uiState.fileSize / 1024} MB",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = colorResource(R.color.lightning))
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(horizontalArrangement = Arrangement.Center){
+                    PercentageBox(percentageFile,0.1f)
+                    PercentageBox(percentageFile,0.2f)
+                    PercentageBox(percentageFile,0.3f)
+                    PercentageBox(percentageFile,0.4f)
+                    PercentageBox(percentageFile,0.5f)
+                    PercentageBox(percentageFile,0.6f)
+                    PercentageBox(percentageFile,0.7f)
+                    PercentageBox(percentageFile,0.8f)
+                    PercentageBox(percentageFile,0.9f)
+                    PercentageBox(percentageFile,0.98f)
+                }
             }
-
 
             if(uiState.isDone){
                 Spacer(modifier = Modifier.height(8.dp))
